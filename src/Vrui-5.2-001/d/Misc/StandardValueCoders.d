@@ -1,0 +1,4 @@
+$(OBJDIR)/Misc/StandardValueCoders.o: Misc/StandardValueCoders.cpp \
+ /home/pstdl/src/Vrui-5.2-001/Misc/StandardValueCoders.h \
+ /home/pstdl/src/Vrui-5.2-001/Misc/ValueCoder.h \
+ /home/pstdl/src/Vrui-5.2-001/Misc/PrintInteger.h

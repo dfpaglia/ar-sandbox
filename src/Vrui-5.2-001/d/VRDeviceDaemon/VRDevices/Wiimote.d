@@ -1,0 +1,23 @@
+$(OBJDIR)/VRDeviceDaemon/VRDevices/Wiimote.o: \
+ VRDeviceDaemon/VRDevices/Wiimote.cpp  \
+ /home/pstdl/src/Vrui-5.2-001/VRDeviceDaemon/VRDevices/Wiimote.h \
+ /home/pstdl/src/Vrui-5.2-001/Misc/CallbackData.h \
+ /home/pstdl/src/Vrui-5.2-001/Misc/CallbackList.h \
+ /home/pstdl/src/Vrui-5.2-001/Threads/Mutex.h  \
+ /home/pstdl/src/Vrui-5.2-001/Threads/Config.h \
+ /home/pstdl/src/Vrui-5.2-001/Threads/Cond.h \
+ /home/pstdl/src/Vrui-5.2-001/Misc/Time.h  \
+ /home/pstdl/src/Vrui-5.2-001/Threads/MutexCond.h \
+ /home/pstdl/src/Vrui-5.2-001/Threads/Thread.h \
+ /home/pstdl/src/Vrui-5.2-001/Math/BrokenLine.h \
+ /home/pstdl/src/Vrui-5.2-001/Math/Math.h  \
+ /home/pstdl/src/Vrui-5.2-001/Geometry/Vector.h \
+ /home/pstdl/src/Vrui-5.2-001/Geometry/ComponentArray.h \
+ /home/pstdl/src/Vrui-5.2-001/Misc/ThrowStdErr.h \
+ /home/pstdl/src/Vrui-5.2-001/Misc/StandardValueCoders.h \
+ /home/pstdl/src/Vrui-5.2-001/Misc/ValueCoder.h \
+ /home/pstdl/src/Vrui-5.2-001/Misc/CompoundValueCoders.h \
+ /home/pstdl/src/Vrui-5.2-001/Misc/Vector.h \
+ /home/pstdl/src/Vrui-5.2-001/Misc/CompoundValueCoders.icpp \
+ /home/pstdl/src/Vrui-5.2-001/Misc/ConfigurationFile.h \
+ /home/pstdl/src/Vrui-5.2-001/Math/MathValueCoders.h

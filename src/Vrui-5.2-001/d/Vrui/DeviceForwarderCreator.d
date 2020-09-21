@@ -1,0 +1,25 @@
+$(OBJDIR)/Vrui/DeviceForwarderCreator.o: \
+ Vrui/DeviceForwarderCreator.cpp  \
+ /home/pstdl/src/Vrui-5.2-001/Vrui/DeviceForwarderCreator.h \
+ /home/pstdl/src/Vrui-5.2-001/Misc/HashTable.h  \
+ /home/pstdl/src/Vrui-5.2-001/Misc/PoolAllocator.h \
+ /home/pstdl/src/Vrui-5.2-001/Misc/StandardHashFunction.h \
+ /home/pstdl/src/Vrui-5.2-001/Vrui/Vrui.h  \
+ /home/pstdl/src/Vrui-5.2-001/Misc/CallbackData.h  \
+ /home/pstdl/src/Vrui-5.2-001/GL/GLColor.h \
+ /home/pstdl/src/Vrui-5.2-001/GL/GLScalarLimits.h \
+ /home/pstdl/src/Vrui-5.2-001/Math/Math.h  \
+  /home/pstdl/src/Vrui-5.2-001/Vrui/Geometry.h \
+ /home/pstdl/src/Vrui-5.2-001/Vrui/InputDevice.h \
+ /home/pstdl/src/Vrui-5.2-001/Misc/CallbackList.h \
+ /home/pstdl/src/Vrui-5.2-001/Geometry/Point.h \
+ /home/pstdl/src/Vrui-5.2-001/Geometry/ComponentArray.h \
+ /home/pstdl/src/Vrui-5.2-001/Geometry/Vector.h \
+ /home/pstdl/src/Vrui-5.2-001/Geometry/Ray.h \
+ /home/pstdl/src/Vrui-5.2-001/Geometry/OrthonormalTransformation.h \
+ /home/pstdl/src/Vrui-5.2-001/Geometry/HVector.h \
+ /home/pstdl/src/Vrui-5.2-001/Geometry/Rotation.h \
+ /home/pstdl/src/Vrui-5.2-001/Geometry/Matrix.h \
+ /home/pstdl/src/Vrui-5.2-001/Vrui/InputDeviceManager.h \
+ /home/pstdl/src/Vrui-5.2-001/Realtime/Time.h \
+ /home/pstdl/src/Vrui-5.2-001/Realtime/Config.h

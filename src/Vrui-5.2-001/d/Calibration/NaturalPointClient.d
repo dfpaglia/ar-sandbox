@@ -1,0 +1,21 @@
+$(OBJDIR)/Calibration/NaturalPointClient.o: \
+ Calibration/NaturalPointClient.cpp  \
+ Calibration/NaturalPointClient.h  \
+ /home/pstdl/src/Vrui-5.2-001/Threads/Thread.h \
+ /home/pstdl/src/Vrui-5.2-001/Threads/MutexCond.h \
+ /home/pstdl/src/Vrui-5.2-001/Misc/Time.h  \
+ /home/pstdl/src/Vrui-5.2-001/Threads/Config.h \
+ /home/pstdl/src/Vrui-5.2-001/Threads/TripleBuffer.h \
+ /home/pstdl/src/Vrui-5.2-001/Misc/SizedTypes.h \
+ /home/pstdl/src/Vrui-5.2-001/Threads/Atomic.h \
+ /home/pstdl/src/Vrui-5.2-001/Comm/UDPSocket.h \
+ /home/pstdl/src/Vrui-5.2-001/Geometry/Point.h \
+ /home/pstdl/src/Vrui-5.2-001/Math/Math.h  \
+ /home/pstdl/src/Vrui-5.2-001/Geometry/ComponentArray.h \
+ /home/pstdl/src/Vrui-5.2-001/Geometry/Vector.h \
+ /home/pstdl/src/Vrui-5.2-001/Geometry/Rotation.h \
+ /home/pstdl/src/Vrui-5.2-001/Geometry/HVector.h \
+ Calibration/PacketBuffer.h   \
+ /home/pstdl/src/Vrui-5.2-001/Misc/Endianness.h \
+ /home/pstdl/src/Vrui-5.2-001/Misc/ThrowStdErr.h  \
+ /home/pstdl/src/Vrui-5.2-001/Misc/FunctionCalls.h

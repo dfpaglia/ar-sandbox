@@ -1,0 +1,23 @@
+$(OBJDIR)/VRDeviceDaemon/VRDevices/RazerHydra.o: \
+ VRDeviceDaemon/VRDevices/RazerHydra.cpp  \
+ /home/pstdl/src/Vrui-5.2-001/VRDeviceDaemon/VRDevices/RazerHydra.h \
+ /home/pstdl/src/Vrui-5.2-001/Misc/ReadBuffer.h  \
+ /home/pstdl/src/Vrui-5.2-001/Misc/Endianness.h \
+ /home/pstdl/src/Vrui-5.2-001/Threads/Thread.h \
+ /home/pstdl/src/Vrui-5.2-001/USB/Device.h  \
+ /home/pstdl/src/Vrui-5.2-001/USB/VendorProductId.h \
+ /home/pstdl/src/Vrui-5.2-001/Misc/SizedTypes.h \
+ /home/pstdl/src/Vrui-5.2-001/USB/Context.h \
+ /home/pstdl/src/Vrui-5.2-001/Misc/Autopointer.h \
+ /home/pstdl/src/Vrui-5.2-001/Threads/Mutex.h \
+ /home/pstdl/src/Vrui-5.2-001/Threads/Config.h \
+ /home/pstdl/src/Vrui-5.2-001/Geometry/Point.h \
+ /home/pstdl/src/Vrui-5.2-001/Math/Math.h  \
+ /home/pstdl/src/Vrui-5.2-001/Geometry/ComponentArray.h \
+ /home/pstdl/src/Vrui-5.2-001/Geometry/Vector.h \
+ /home/pstdl/src/Vrui-5.2-001/Geometry/Rotation.h \
+ /home/pstdl/src/Vrui-5.2-001/Geometry/HVector.h  \
+ /home/pstdl/src/Vrui-5.2-001/Misc/ThrowStdErr.h \
+ /home/pstdl/src/Vrui-5.2-001/Misc/FunctionCalls.h \
+ /home/pstdl/src/Vrui-5.2-001/USB/DeviceList.h \
+ /home/pstdl/src/Vrui-5.2-001/USB/DeviceList.icpp

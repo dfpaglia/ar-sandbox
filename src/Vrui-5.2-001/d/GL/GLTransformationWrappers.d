@@ -1,0 +1,28 @@
+$(OBJDIR)/GL/GLTransformationWrappers.o: \
+ GL/GLTransformationWrappers.cpp  \
+ /home/pstdl/src/Vrui-5.2-001/GL/GLTransformationWrappers.icpp \
+ /home/pstdl/src/Vrui-5.2-001/GL/GLTransformationWrappers.h \
+ /home/pstdl/src/Vrui-5.2-001/GL/GLMatrixEnums.h \
+ /home/pstdl/src/Vrui-5.2-001/Math/Math.h  \
+ /home/pstdl/src/Vrui-5.2-001/Geometry/TranslationTransformation.h \
+ /home/pstdl/src/Vrui-5.2-001/Geometry/Vector.h \
+ /home/pstdl/src/Vrui-5.2-001/Geometry/ComponentArray.h \
+ /home/pstdl/src/Vrui-5.2-001/Geometry/Point.h \
+ /home/pstdl/src/Vrui-5.2-001/Geometry/HVector.h \
+ /home/pstdl/src/Vrui-5.2-001/Geometry/RotationTransformation.h \
+ /home/pstdl/src/Vrui-5.2-001/Geometry/Rotation.h \
+ /home/pstdl/src/Vrui-5.2-001/Geometry/OrthonormalTransformation.h \
+ /home/pstdl/src/Vrui-5.2-001/Geometry/Matrix.h \
+ /home/pstdl/src/Vrui-5.2-001/Geometry/UniformScalingTransformation.h \
+ /home/pstdl/src/Vrui-5.2-001/Geometry/OrthogonalTransformation.h \
+ /home/pstdl/src/Vrui-5.2-001/Geometry/ScalingTransformation.h \
+ /home/pstdl/src/Vrui-5.2-001/Geometry/AffineTransformation.h \
+ /home/pstdl/src/Vrui-5.2-001/Geometry/ProjectiveTransformation.h \
+ /home/pstdl/src/Vrui-5.2-001/GL/GLMatrixTemplates.h \
+ /home/pstdl/src/Vrui-5.2-001/GL/GLVector.h \
+ /home/pstdl/src/Vrui-5.2-001/GL/GLGetMatrixTemplates.h \
+ /home/pstdl/src/Vrui-5.2-001/GL/GLGetTemplates.h \
+ /home/pstdl/src/Vrui-5.2-001/GL/Extensions/GLARBShaderObjects.h \
+ /home/pstdl/src/Vrui-5.2-001/GL/TLSHelper.h \
+ /home/pstdl/src/Vrui-5.2-001/GL/Config.h \
+ /home/pstdl/src/Vrui-5.2-001/GL/Extensions/GLExtension.h
