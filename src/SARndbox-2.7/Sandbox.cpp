@@ -115,6 +115,52 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 
 #include "Config.h"
 
+/********************************************************
+Static elements of class Sandbox::VolumeTool:
+********************************************************/
+
+Sandbox::VolumeToolFactory* Sandbox::VolumeTool::factory=0;
+
+/************************************************
+Methods of class Sandbox::VolumeTool:
+************************************************/
+
+Sandbox::VolumeTool::VolumeTool(const Vrui::ToolFactory* factory,const Vrui::ToolInputAssignment& inputAssignment)
+	:Vrui::Tool(factory,inputAssignment)
+	{
+	}
+
+Sandbox::VolumeTool::~VolumeTool(void)
+	{
+	}
+
+const Vrui::ToolFactory* Sandbox::VolumeTool::getFactory(void) const
+	{
+	return factory;
+	}
+
+void Sandbox::VolumeTool::buttonCallback(int buttonSlotIndex,Vrui::InputDevice::ButtonCallbackData* cbData)
+	{
+	/* Start capturing a depth frame if the button was just pressed: */
+	if(cbData->newButtonState)
+		{
+		if(buttonSlotIndex==0)
+			application->startVolume();
+		else
+			application->endVolume();
+		}
+	}
+
+void Sandbox::startVolume(void)
+	{
+		std::cout << "Volume collection has started\n" << std::endl;
+	}
+
+void Sandbox::endVolume(void)
+	{
+		std::cout << "Volume collection has ended\n" << std::endl;
+	}
+
 /**********************************
 Methods of class Sandbox::DataItem:
 **********************************/
@@ -1154,6 +1200,8 @@ bool isToken(const std::string& token,const char* pattern)
 
 }
 
+bool depthData = false;
+
 void Sandbox::frame(void)
 	{
 	/* Call the remote server's frame method: */
@@ -1165,6 +1213,23 @@ void Sandbox::frame(void)
 		{
 		/* Update the depth image renderer's depth image: */
 		depthImageRenderer->setDepthImage(filteredFrames.getLockedValue());
+
+		typedef GLfloat DepthPixel;
+		Kinect::FrameBuffer fb = filteredFrames.getLockedValue();
+
+		if(!depthData){
+			const DepthPixel *dfPtr = fb.getData<DepthPixel>();
+			const int x = fb.getSize()[0];
+			const int y = fb.getSize()[1];
+			GLfloat depthArray[x][y];
+			for (unsigned int i = 0; i < x * y; ++i, ++dfPtr) {
+				int xVal = i % x;
+				int yVal = floor(i / x);
+				depthArray[xVal][yVal] = *dfPtr;
+				std::cout << "(" << xVal << ", " << yVal << ") = "<< depthArray[xVal][yVal] << std::endl;
+			}
+			depthData = true;
+		}
 		}
 	
 	if(handExtractor!=0)
