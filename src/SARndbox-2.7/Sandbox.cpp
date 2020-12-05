@@ -112,6 +112,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 #include "LocalWaterTool.h"
 #include "DEMTool.h"
 #include "BathymetrySaverTool.h"
+#include "VolumeTool.h"
 
 #include "Config.h"
 
@@ -1055,6 +1056,7 @@ Sandbox::Sandbox(int& argc,char**& argv)
 	GlobalWaterTool::initClass(*Vrui::getToolManager());
 	LocalWaterTool::initClass(*Vrui::getToolManager());
 	DEMTool::initClass(*Vrui::getToolManager());
+	VolumeTool::initClass(*Vrui::getToolManager());
 	if(waterTable!=0)
 		BathymetrySaverTool::initClass(waterTable,*Vrui::getToolManager());
 	addEventTool("Pause Topography",0,0);
