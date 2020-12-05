@@ -115,52 +115,6 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 
 #include "Config.h"
 
-/********************************************************
-Static elements of class Sandbox::VolumeTool:
-********************************************************/
-
-Sandbox::VolumeToolFactory* Sandbox::VolumeTool::factory=0;
-
-/************************************************
-Methods of class Sandbox::VolumeTool:
-************************************************/
-
-Sandbox::VolumeTool::VolumeTool(const Vrui::ToolFactory* factory,const Vrui::ToolInputAssignment& inputAssignment)
-	:Vrui::Tool(factory,inputAssignment)
-	{
-	}
-
-Sandbox::VolumeTool::~VolumeTool(void)
-	{
-	}
-
-const Vrui::ToolFactory* Sandbox::VolumeTool::getFactory(void) const
-	{
-	return factory;
-	}
-
-void Sandbox::VolumeTool::buttonCallback(int buttonSlotIndex,Vrui::InputDevice::ButtonCallbackData* cbData)
-	{
-	/* Start capturing a depth frame if the button was just pressed: */
-	if(cbData->newButtonState)
-		{
-		if(buttonSlotIndex==0)
-			application->startVolume();
-		else
-			application->endVolume();
-		}
-	}
-
-void Sandbox::startVolume(void)
-	{
-		std::cout << "Volume collection has started\n" << std::endl;
-	}
-
-void Sandbox::endVolume(void)
-	{
-		std::cout << "Volume collection has ended\n" << std::endl;
-	}
-
 /**********************************
 Methods of class Sandbox::DataItem:
 **********************************/

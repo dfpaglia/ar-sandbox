@@ -192,6 +192,7 @@ class Sandbox:public Vrui::Application,public GLObject
 	friend class DEMTool;
 	friend class BathymetrySaverTool;
 	friend class RemoteServer;
+	friend class VolumeTool;
 	
 	/* Elements: */
 	private:
@@ -254,30 +255,6 @@ class Sandbox:public Vrui::Application,public GLObject
 	
 	/* Methods from GLObject: */
 	virtual void initContext(GLContextData& contextData) const;
-
-	class VolumeTool;
-	typedef Vrui::GenericToolFactory<VolumeTool> VolumeToolFactory; // Tool class uses the generic factory class
-	
-	class VolumeTool:public Vrui::Tool,public Vrui::Application::Tool<Sandbox>
-		{
-		friend class Vrui::GenericToolFactory<VolumeTool>;
-		
-		/* Elements: */
-		private:
-		static VolumeToolFactory* factory; // Pointer to the factory object for this class
-		
-		/* Constructors and destructors: */
-		public:
-		VolumeTool(const Vrui::ToolFactory* factory,const Vrui::ToolInputAssignment& inputAssignment);
-		virtual ~VolumeTool(void);
-		
-		/* Methods from class Vrui::Tool: */
-		virtual const Vrui::ToolFactory* getFactory(void) const;
-		virtual void buttonCallback(int buttonSlotIndex,Vrui::InputDevice::ButtonCallbackData* cbData);
-		};
-
-	void startVolume(void); 
-	void endVolume(void);
 	};
 
 #endif
