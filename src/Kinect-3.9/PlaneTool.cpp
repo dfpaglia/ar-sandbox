@@ -37,6 +37,9 @@ Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
 #include <Vrui/DisplayState.h>
 #include <Kinect/Camera.h>
 
+#include <iomanip>
+#include <fstream>
+
 #include "RawKinectViewer.h"
 
 /**********************************
@@ -141,6 +144,45 @@ void PlaneTool::buttonCallback(int buttonSlotIndex,Vrui::InputDevice::ButtonCall
 			if(max[i]>int(application->depthFrameSize[i]))
 				max[i]=int(application->depthFrameSize[i]);
 			}
+
+			printf("p0 = %f, %f\n", p0[0], p0[1]);
+			printf("p1 = %f, %f\n", p1[0], p1[1]);
+			printf("min1 = %d, min2 = %d, max1 = %d, max2 = %d\n", min[0], min[1], max[0], max[1]);
+
+			RawKinectViewer::CPoint imagePoint0 =application->getDepthImagePoint(p0);
+			RawKinectViewer::CPoint imagePoint1 =application->getDepthImagePoint(p1);
+
+			RawKinectViewer::CPoint worldPoint0 = application->intrinsicParameters.depthProjection.transform(imagePoint0);
+			RawKinectViewer::CPoint worldPoint1 = application->intrinsicParameters.depthProjection.transform(imagePoint1);
+			std::cout<<std::setw(20)<<worldPoint0<<std::endl;
+			std::cout<<std::setw(20)<<worldPoint0[2]<<std::endl;
+			std::cout<<std::setw(20)<<worldPoint1<<std::endl;
+
+		
+			double xValEnd = p1[0];
+			double yValEnd = p1[1];
+			std::ofstream outputFile("testOut.csv");
+			for(double xValStart = p0[0]; xValStart < xValEnd; xValStart = xValStart + 1)
+			{
+				for(double yValStart = p0[1]; yValStart > yValEnd; yValStart = yValStart - 1)
+				{
+					Point position;
+
+					position[0] = xValStart;
+					position[1] = yValStart;
+
+					RawKinectViewer::CPoint imagePosition =application->getDepthImagePoint(position);
+					RawKinectViewer::CPoint worldPosition = application->intrinsicParameters.depthProjection.transform(imagePosition);
+					outputFile << worldPosition[2];
+					outputFile << ",";
+				}
+				
+				outputFile << "\n";
+			}
+			outputFile.close();
+
+
+
 		
 		/* Calculate the selected pixels' plane equation in depth image space: */
 		typedef Geometry::PCACalculator<3>::Point PPoint;
@@ -188,6 +230,7 @@ void PlaneTool::buttonCallback(int buttonSlotIndex,Vrui::InputDevice::ButtonCall
 			}
 		else
 			{
+				//Code hits here
 			/* Account for lens distortion correction by checking every pixel against the selected rectangle: */
 			if(application->depthCorrection!=0)
 				{
@@ -212,6 +255,7 @@ void PlaneTool::buttonCallback(int buttonSlotIndex,Vrui::InputDevice::ButtonCall
 				}
 			else
 				{
+				//Code goes here
 				for(int y=min[1];y<max[1];++y,afdRow+=application->depthFrameSize[0],affRow+=application->depthFrameSize[0])
 					{
 					double dy=double(y)+0.5;
@@ -326,6 +370,7 @@ void PlaneTool::buttonCallback(int buttonSlotIndex,Vrui::InputDevice::ButtonCall
 				}
 			else
 				{
+				 //Code hits here 
 				/* Account for lens distortion correction by checking every pixel against the selected rectangle: */
 				if(application->depthCorrection!=0)
 					{
@@ -349,6 +394,7 @@ void PlaneTool::buttonCallback(int buttonSlotIndex,Vrui::InputDevice::ButtonCall
 					}
 				else
 					{
+					//Code goes here
 					for(int y=min[1];y<max[1];++y,afdRow+=application->depthFrameSize[0],affRow+=application->depthFrameSize[0])
 						{
 						double dy=double(y)+0.5;
