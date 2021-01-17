@@ -85,6 +85,7 @@ class RawKinectViewer:public Vrui::Application,public GLObject
 	friend class PlaneTool;
 	friend class PointPlaneTool;
 	friend class CalibrationCheckTool;
+	friend class VolumeTool;
 	
 	/* Elements: */
 	Kinect::DirectFrameSource* camera; // Pointer to a directly-connected depth camera

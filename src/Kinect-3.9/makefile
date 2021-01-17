@@ -359,6 +359,7 @@ $(EXEDIR)/RawKinectViewer: $(OBJDIR)/PauseTool.o \
                            $(OBJDIR)/PlaneTool.o \
                            $(OBJDIR)/PointPlaneTool.o \
                            $(OBJDIR)/CalibrationCheckTool.o \
+						   $(OBJDIR)/VolumeTool.o \
                            $(OBJDIR)/RawKinectViewer.o
 .PHONY: RawKinectViewer
 RawKinectViewer: $(EXEDIR)/RawKinectViewer
