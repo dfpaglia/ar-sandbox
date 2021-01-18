@@ -56,6 +56,7 @@ Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
 #include "PlaneTool.h"
 #include "PointPlaneTool.h"
 #include "CalibrationCheckTool.h"
+#include "VolumeTool.h"
 
 /******************************************
 Methods of class RawKinectViewer::DataItem:
@@ -832,6 +833,7 @@ RawKinectViewer::RawKinectViewer(int& argc,char**& argv)
 	PlaneTool::initClass(*Vrui::getToolManager());
 	PointPlaneTool::initClass(*Vrui::getToolManager());
 	CalibrationCheckTool::initClass(*Vrui::getToolManager());
+	VolumeTool::initClass(*Vrui::getToolManager());
 	
 	/* Parse the command line: */
 	bool printHelp=false;

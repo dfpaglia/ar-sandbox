@@ -67,6 +67,7 @@ void VolumeTool::buttonCallback(int buttonSlotIndex,Vrui::InputDevice::ButtonCal
 		{
 		if(buttonSlotIndex==0){
 			std::cout << "Volume start" << std::endl;
+			//application->requestAverageFrame(0);
             p0=Point(application->calcImagePoint(getButtonDeviceRay(0)).getComponents());
 		    dragging=true;
 			button2 = false;
@@ -74,6 +75,7 @@ void VolumeTool::buttonCallback(int buttonSlotIndex,Vrui::InputDevice::ButtonCal
 
 		if(buttonSlotIndex==1){
 			std::cout << "Volume end" << std::endl;
+			//application->requestAverageFrame(0);
 			button2 = true;
 		}
 		}
@@ -82,13 +84,10 @@ void VolumeTool::buttonCallback(int buttonSlotIndex,Vrui::InputDevice::ButtonCal
 			std::cout << "button released" << std::endl;
 			if(!button2)
 			{
-				//dragging=false;
-
-				//application->requestAverageFrame(0);
+				dragging=false;
 
 				printf("p0 = %f, %f\n", p0[0], p0[1]);
 				printf("p1 = %f, %f\n", p1[0], p1[1]);
-				//printf("min1 = %d, min2 = %d, max1 = %d, max2 = %d\n", min[0], min[1], max[0], max[1]);
 
 				RawKinectViewer::CPoint imagePoint0 =application->getDepthImagePoint(p0);
 				RawKinectViewer::CPoint imagePoint1 =application->getDepthImagePoint(p1);
@@ -104,8 +103,8 @@ void VolumeTool::buttonCallback(int buttonSlotIndex,Vrui::InputDevice::ButtonCal
 
 				//TODO: Add a case statement or if conditions for each possible starting corner
 				
-				xSize = floor(p1[0] - p0[0]);
-				ySize = floor(p0[1] - p1[1]);
+				xSize = floor(p1[0]) - floor(p0[0]);
+				ySize = floor(p0[1]) - floor(p1[1]);
 				std::cout << "xSize = " << xSize << ", ySize = " << ySize << std::endl;
 
 				depthArray = new int*[xSize];
@@ -114,26 +113,24 @@ void VolumeTool::buttonCallback(int buttonSlotIndex,Vrui::InputDevice::ButtonCal
 					depthArray[i] = new int[ySize];
 				}
 
-				for(double xValStart = p0[0]; xValStart < xValEnd; xValStart = xValStart + 1)
+				for(int xValStart = floor(p0[0]); xValStart < xValEnd; xValStart = xValStart + 1)
 				{
-					for(double yValStart = p0[1]; yValStart > yValEnd; yValStart = yValStart - 1)
+					for(int yValStart = floor(p0[1]); yValStart > yValEnd; yValStart = yValStart - 1)
 					{
 						Point position;
 
 						position[0] = xValStart;
 						position[1] = yValStart;
 
-						int xPos = floor(xValEnd - xValStart);
-						int yPos = floor(yValStart - yValEnd); 
+						int xPos = (xValEnd - xValStart)-1;
+						int yPos = (yValStart - yValEnd)-1; 
 
 						RawKinectViewer::CPoint imagePosition =application->getDepthImagePoint(position);
 						RawKinectViewer::CPoint worldPosition = application->intrinsicParameters.depthProjection.transform(imagePosition);
 						depthArray[xPos][yPos] = worldPosition[2];
-						//printf("depthArray[%d][%d] = %f\n", xPos, yPos, worldPosition[2]);
 					}
 					
 				}
-				
 				//application->averageFrameValid=false;
 				//application->depthPlaneValid=false;
 			}
@@ -145,17 +142,17 @@ void VolumeTool::buttonCallback(int buttonSlotIndex,Vrui::InputDevice::ButtonCal
 					depthArray2[i] = new int[ySize];
 				}
 
-				for(double xValStart = p0[0]; xValStart < xValEnd; xValStart = xValStart + 1)
+				for(int xValStart = floor(p0[0]); xValStart < xValEnd; xValStart = xValStart + 1)
 				{
-					for(double yValStart = p0[1]; yValStart > yValEnd; yValStart = yValStart - 1)
+					for(int yValStart = floor(p0[1]); yValStart > yValEnd; yValStart = yValStart - 1)
 					{
 						Point position;
 
 						position[0] = xValStart;
 						position[1] = yValStart;
 
-						int xPos = floor(xValEnd - xValStart);
-						int yPos = floor(yValStart - yValEnd); 
+						int xPos = (xValEnd - xValStart)-1;
+						int yPos = (yValStart - yValEnd)-1; 
 
 						RawKinectViewer::CPoint imagePosition =application->getDepthImagePoint(position);
 						RawKinectViewer::CPoint worldPosition = application->intrinsicParameters.depthProjection.transform(imagePosition);
@@ -171,13 +168,14 @@ void VolumeTool::buttonCallback(int buttonSlotIndex,Vrui::InputDevice::ButtonCal
 					{
 						if(depthArray2[i][j] < depthArray[i][j])
 						{
-							double difference = depthArray2[i][j] - depthArray[i][j];
-							printf("difference = %f\n", difference);
+							double difference = depthArray[i][j] - depthArray2[i][j];
 							volume = volume + difference;
 						}
 					}
 				}
 				printf("volume = %f\n", volume);
+				//application->averageFrameValid=false;
+				//application->depthPlaneValid=false;
 			}
 		}
 	}
