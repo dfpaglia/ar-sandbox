@@ -240,6 +240,7 @@ RawKinectViewer::CPoint RawKinectViewer::getDepthImagePoint(const Vrui::Point& i
 		/* Calculate the depth image point's pixel coordinates: */
 		unsigned int diX=(unsigned int)dip[0];
 		unsigned int diY=(unsigned int)dip[1];
+		printf("depth image pixel: %d, %d\n", diX, diY);
 		
 		/* Create the result point in undistorted depth image space: */
 		CPoint result;

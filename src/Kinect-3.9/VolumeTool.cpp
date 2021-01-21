@@ -91,6 +91,8 @@ void VolumeTool::buttonCallback(int buttonSlotIndex,Vrui::InputDevice::ButtonCal
 
 				RawKinectViewer::CPoint imagePoint0 =application->getDepthImagePoint(p0);
 				RawKinectViewer::CPoint imagePoint1 =application->getDepthImagePoint(p1);
+				printf("image point0[2] = %f\n", imagePoint0[2]);
+				printf("image point1[2] = %f\n", imagePoint1[2]);
 
 				RawKinectViewer::CPoint worldPoint0 = application->intrinsicParameters.depthProjection.transform(imagePoint0);
 				RawKinectViewer::CPoint worldPoint1 = application->intrinsicParameters.depthProjection.transform(imagePoint1);
