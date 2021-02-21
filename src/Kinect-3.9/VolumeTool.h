@@ -7,6 +7,8 @@
 #include <Vrui/GenericToolFactory.h>
 #include <Vrui/Application.h>
 
+#include "RawKinectViewer.h"
+
 /* Forward declarations: */
 class RawKinectViewer;
 
@@ -31,10 +33,16 @@ class VolumeTool:public Vrui::Tool,public Vrui::Application::Tool<RawKinectViewe
 	Point p1; // The rectangle's dragged corner
 	int xSize;
 	int ySize;
-	int xValEnd;
-	int yValEnd;
-	int **depthArray;
-	int **depthArray2;
+	double xValEnd;
+	double yValEnd;
+
+	struct volumetricPoint
+	{
+		RawKinectViewer::CPoint volumePoint;
+	};
+
+	struct volumetricPoint **depthArray;
+	struct volumetricPoint **depthArray2;
 	
 	/* Constructors and destructors: */
 	public:
