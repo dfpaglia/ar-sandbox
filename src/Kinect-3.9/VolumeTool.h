@@ -36,14 +36,21 @@ class VolumeTool:public Vrui::Tool,public Vrui::Application::Tool<RawKinectViewe
 	double xValEnd;
 	double yValEnd;
 
-	struct volumetricPoint
-	{
-		RawKinectViewer::CPoint volumePoint;
-	};
+	double ***beforeDepthArray;
+	double ***afterDepthArray;
 
-	struct volumetricPoint **depthArray;
-	struct volumetricPoint **depthArray2;
-	
+	double ***b1;
+	double ***b2;
+	double ***b3;
+	double ***b4;
+	double ***b5;
+
+	double ***a1;
+	double ***a2;
+	double ***a3;
+	double ***a4;
+	double ***a5;
+
 	/* Constructors and destructors: */
 	public:
 	static VolumeToolFactory* initClass(Vrui::ToolManager& toolManager);
