@@ -19,6 +19,7 @@
 
 #include <iomanip>
 #include <fstream>
+#include <vector>
 
 #include "RawKinectViewer.h"
 
@@ -94,6 +95,9 @@ void VolumeTool::buttonCallback(int buttonSlotIndex,Vrui::InputDevice::ButtonCal
 
 				RawKinectViewer::CPoint imagePoint0 = application->getDepthImagePoint(p0);
 				RawKinectViewer::CPoint imagePoint1 = application->getDepthImagePoint(p1);
+
+				printf("top left corner:         imagePoint0 = %f, %f, %f\n", imagePoint0[0], imagePoint0[1], imagePoint0[2]);
+				printf("bottom right corner:     imagePoint0 = %f, %f, %f\n", imagePoint1[0], imagePoint1[1], imagePoint1[2]);
 
 				RawKinectViewer::CPoint worldPoint0 = application->intrinsicParameters.depthProjection.transform(imagePoint0);
 				RawKinectViewer::CPoint worldPoint1 = application->intrinsicParameters.depthProjection.transform(imagePoint1);
@@ -274,6 +278,9 @@ void VolumeTool::buttonCallback(int buttonSlotIndex,Vrui::InputDevice::ButtonCal
 				std::ofstream outFile;
 				outFile.open("matrix1.csv");
 
+				std::ofstream xMatrix;
+				xMatrix.open("xMatrix.csv");
+
 				std::ofstream pointFile;
 				pointFile.open("points1.csv");
 
@@ -285,33 +292,33 @@ void VolumeTool::buttonCallback(int buttonSlotIndex,Vrui::InputDevice::ButtonCal
 						int yPos = ((yValStart - yValEnd) -1);
 						
 						//Code for median of 5 collections
-						//double medianArray[5];
-						// medianArray[0] = b1[xPos][yPos][0];
-						// medianArray[1] = b2[xPos][yPos][0];
-						// medianArray[2] = b3[xPos][yPos][0];
-						// medianArray[3] = b4[xPos][yPos][0];
-						// medianArray[4] = b5[xPos][yPos][0];
+						double medianArray[5];
+						medianArray[0] = b1[xPos][yPos][0];
+						medianArray[1] = b2[xPos][yPos][0];
+						medianArray[2] = b3[xPos][yPos][0];
+						medianArray[3] = b4[xPos][yPos][0];
+						medianArray[4] = b5[xPos][yPos][0];
 
-						// std::sort(medianArray, medianArray+5);
-						// beforeDepthArray[xPos][yPos][0] = medianArray[2];
+						std::sort(medianArray, medianArray+5);
+						beforeDepthArray[xPos][yPos][0] = medianArray[2];
 
-						// medianArray[0] = b1[xPos][yPos][1];
-						// medianArray[1] = b2[xPos][yPos][1];
-						// medianArray[2] = b3[xPos][yPos][1];
-						// medianArray[3] = b4[xPos][yPos][1];
-						// medianArray[4] = b5[xPos][yPos][1];
+						medianArray[0] = b1[xPos][yPos][1];
+						medianArray[1] = b2[xPos][yPos][1];
+						medianArray[2] = b3[xPos][yPos][1];
+						medianArray[3] = b4[xPos][yPos][1];
+						medianArray[4] = b5[xPos][yPos][1];
 
-						// std::sort(medianArray, medianArray+5);
-						// beforeDepthArray[xPos][yPos][1] = medianArray[2];
+						std::sort(medianArray, medianArray+5);
+						beforeDepthArray[xPos][yPos][1] = medianArray[2];
 
-						// medianArray[0] = b1[xPos][yPos][2];
-						// medianArray[1] = b2[xPos][yPos][2];
-						// medianArray[2] = b3[xPos][yPos][2];
-						// medianArray[3] = b4[xPos][yPos][2];
-						// medianArray[4] = b5[xPos][yPos][2];
+						medianArray[0] = b1[xPos][yPos][2];
+						medianArray[1] = b2[xPos][yPos][2];
+						medianArray[2] = b3[xPos][yPos][2];
+						medianArray[3] = b4[xPos][yPos][2];
+						medianArray[4] = b5[xPos][yPos][2];
 
-						// std::sort(medianArray, medianArray+5);
-						// beforeDepthArray[xPos][yPos][2] = medianArray[2];
+						std::sort(medianArray, medianArray+5);
+						beforeDepthArray[xPos][yPos][2] = medianArray[2];
 
 
 						// Code for mean of 5 collections
@@ -325,19 +332,22 @@ void VolumeTool::buttonCallback(int buttonSlotIndex,Vrui::InputDevice::ButtonCal
 						// beforeDepthArray[xPos][yPos][2] = mean;
 						
 						// Code for no filtering of values (uses first collection)
-						beforeDepthArray[xPos][yPos][0] = b1[xPos][yPos][0];
-						beforeDepthArray[xPos][yPos][1] = b1[xPos][yPos][1];
-						beforeDepthArray[xPos][yPos][2] = b1[xPos][yPos][2];
+						// beforeDepthArray[xPos][yPos][0] = b1[xPos][yPos][0];
+						// beforeDepthArray[xPos][yPos][1] = b1[xPos][yPos][1];
+						// beforeDepthArray[xPos][yPos][2] = b1[xPos][yPos][2];
 
 						pointFile <<  beforeDepthArray[xPos][yPos][0] << "," << beforeDepthArray[xPos][yPos][1] << "," << beforeDepthArray[xPos][yPos][2] << "\n";
 
 						outFile << beforeDepthArray[xPos][yPos][2] << ",";
+						xMatrix << beforeDepthArray[xPos][yPos][0] << ",";
 					}
 					outFile << "\n";
+					xMatrix << "\n";
 				}
 
 				outFile.close();
 				pointFile.close();
+				xMatrix.close();
 			}
 			else
 			{
@@ -517,36 +527,36 @@ void VolumeTool::buttonCallback(int buttonSlotIndex,Vrui::InputDevice::ButtonCal
 						int yPos = ((yValStart - yValEnd) -1);
 
 						//Code for median of 5 collections
-						//double medianArray[5];
-						// medianArray[0] = a1[xPos][yPos][0];
-						// medianArray[1] = a2[xPos][yPos][0];
-						// medianArray[2] = a3[xPos][yPos][0];
-						// medianArray[3] = a4[xPos][yPos][0];
-						// medianArray[4] = a5[xPos][yPos][0];
+						double medianArray[5];
+						medianArray[0] = a1[xPos][yPos][0];
+						medianArray[1] = a2[xPos][yPos][0];
+						medianArray[2] = a3[xPos][yPos][0];
+						medianArray[3] = a4[xPos][yPos][0];
+						medianArray[4] = a5[xPos][yPos][0];
 
-						// std::sort(medianArray, medianArray+5);
-						// afterDepthArray[xPos][yPos][0] = medianArray[2];
+						std::sort(medianArray, medianArray+5);
+						afterDepthArray[xPos][yPos][0] = medianArray[2];
 
-						// medianArray[0] = a1[xPos][yPos][1];
-						// medianArray[1] = a2[xPos][yPos][1];
-						// medianArray[2] = a3[xPos][yPos][1];
-						// medianArray[3] = a4[xPos][yPos][1];
-						// medianArray[4] = a5[xPos][yPos][1];
+						medianArray[0] = a1[xPos][yPos][1];
+						medianArray[1] = a2[xPos][yPos][1];
+						medianArray[2] = a3[xPos][yPos][1];
+						medianArray[3] = a4[xPos][yPos][1];
+						medianArray[4] = a5[xPos][yPos][1];
 
-						// std::sort(medianArray, medianArray+5);
-						// afterDepthArray[xPos][yPos][1] = medianArray[2];
+						std::sort(medianArray, medianArray+5);
+						afterDepthArray[xPos][yPos][1] = medianArray[2];
 
-						// afterDepthArray[xPos][yPos][0] = beforeDepthArray[xPos][yPos][0];
-						// afterDepthArray[xPos][yPos][1] = beforeDepthArray[xPos][yPos][1];
+						afterDepthArray[xPos][yPos][0] = beforeDepthArray[xPos][yPos][0];
+						afterDepthArray[xPos][yPos][1] = beforeDepthArray[xPos][yPos][1];
 
-						// medianArray[0] = a1[xPos][yPos][2];
-						// medianArray[1] = a2[xPos][yPos][2];
-						// medianArray[2] = a3[xPos][yPos][2];
-						// medianArray[3] = a4[xPos][yPos][2];
-						// medianArray[4] = a5[xPos][yPos][2];
+						medianArray[0] = a1[xPos][yPos][2];
+						medianArray[1] = a2[xPos][yPos][2];
+						medianArray[2] = a3[xPos][yPos][2];
+						medianArray[3] = a4[xPos][yPos][2];
+						medianArray[4] = a5[xPos][yPos][2];
 
-						// std::sort(medianArray, medianArray+5);
-						// afterDepthArray[xPos][yPos][2] = medianArray[2];
+						std::sort(medianArray, medianArray+5);
+						afterDepthArray[xPos][yPos][2] = medianArray[2];
 						
 
 						//Code for mean of 5 collections
@@ -560,9 +570,9 @@ void VolumeTool::buttonCallback(int buttonSlotIndex,Vrui::InputDevice::ButtonCal
 						// afterDepthArray[xPos][yPos][2] = mean;
 
 						// Code for no filtering of values (uses first collection)
-						afterDepthArray[xPos][yPos][0] = a1[xPos][yPos][0];
-						afterDepthArray[xPos][yPos][1] = a1[xPos][yPos][1];
-						afterDepthArray[xPos][yPos][2] = a1[xPos][yPos][2];
+						// afterDepthArray[xPos][yPos][0] = a1[xPos][yPos][0];
+						// afterDepthArray[xPos][yPos][1] = a1[xPos][yPos][1];
+						// afterDepthArray[xPos][yPos][2] = a1[xPos][yPos][2];
 
 						pointFile2 <<  afterDepthArray[xPos][yPos][0] << "," << afterDepthArray[xPos][yPos][1] << "," << afterDepthArray[xPos][yPos][2] << "\n";
 
@@ -577,46 +587,50 @@ void VolumeTool::buttonCallback(int buttonSlotIndex,Vrui::InputDevice::ButtonCal
 				//Volume calculation code			
 				double volumePos = 0;
 				double volumeNeg = 0;
+				double totalError = 0;
+				std::vector<double> errorList;
+
+				std::ofstream volumePointFile;
+				volumePointFile.open("volumePointFile.csv");
 
 				for(int i = 0; i < xSize-1; i++) //xSize
 				{
-
 					for(int j = 0; j < ySize-1; j++) //ySize
 					{
 						double x1Before = beforeDepthArray[i][j][0];
 						double y1Before = beforeDepthArray[i][j][1];
-						double z1Before = abs(beforeDepthArray[i][j][2]);
+						double z1Before = beforeDepthArray[i][j][2];
 
 						double x2Before = beforeDepthArray[i+1][j][0];
-						double y2Before =  beforeDepthArray[i+1][j][1];
-						double z2Before = abs(beforeDepthArray[i+1][j][2]);
+						double y2Before = beforeDepthArray[i+1][j][1];
+						double z2Before = beforeDepthArray[i+1][j][2];
 
 						double x3Before = beforeDepthArray[i][j+1][0];
-						double y3Before =  beforeDepthArray[i][j+1][1];
-						double z3Before = abs(beforeDepthArray[i][j+1][2]);
+						double y3Before = beforeDepthArray[i][j+1][1];
+						double z3Before = beforeDepthArray[i][j+1][2];
 
 						double x4Before = beforeDepthArray[i+1][j+1][0];
-						double y4Before =  beforeDepthArray[i+1][j+1][1];
-						double z4Before = abs(beforeDepthArray[i+1][j+1][2]);
+						double y4Before = beforeDepthArray[i+1][j+1][1];
+						double z4Before = beforeDepthArray[i+1][j+1][2];
 
 						double x1After = afterDepthArray[i][j][0];
 						double y1After = afterDepthArray[i][j][1];
-						double z1After = abs(afterDepthArray[i][j][2]);
+						double z1After = afterDepthArray[i][j][2];
 
 						double x2After = afterDepthArray[i+1][j][0];
-						double y2After =  afterDepthArray[i+1][j][1];
-						double z2After = abs(afterDepthArray[i+1][j][2]);
+						double y2After = afterDepthArray[i+1][j][1];
+						double z2After = afterDepthArray[i+1][j][2];
 
 						double x3After = afterDepthArray[i][j+1][0];
-						double y3After =  afterDepthArray[i][j+1][1];
-						double z3After = abs(afterDepthArray[i][j+1][2]);
+						double y3After = afterDepthArray[i][j+1][1];
+						double z3After = afterDepthArray[i][j+1][2];
 
 						double x4After = afterDepthArray[i+1][j+1][0];
-						double y4After =  afterDepthArray[i+1][j+1][1];
-						double z4After = abs(afterDepthArray[i+1][j+1][2]);
+						double y4After = afterDepthArray[i+1][j+1][1];
+						double z4After = afterDepthArray[i+1][j+1][2];
 
-						double deltaX = (((x1Before - x2Before)) + (x3Before - x4Before) + (x1After - x2After) + (x3After - x4After))/4;
-						double deltaY = abs((((y1Before - y3Before)) + (y2Before - y4Before) + (y1After - y3After) + (y2After - y4After))/4);
+						double xDim = ( abs(x1Before - x2Before) + abs(x3Before - x4Before) + abs(x1After - x2After) + abs(x3After - x4After) )/4;
+						double yDim = ( abs(y3Before - y1Before) + abs(y4Before - y2Before) + abs(y3After - y1After) + abs(y4After - y2After) )/4;
 
 						double minZ;
 						double maxZ;
@@ -628,142 +642,110 @@ void VolumeTool::buttonCallback(int buttonSlotIndex,Vrui::InputDevice::ButtonCal
 						double maxZAfter;
 
 						//Minimum depth to reduce error?
-						//if( (abs(z1Before - z1After) > 0.8) || (abs(z2Before - z2After) > 0.8) || (abs(z3Before - z3After) > 0.8) || (abs(z4Before - z4After) > 0.8))
-						//{
-						if( (z1Before != z1After) || (z2Before != z2After) || (z3Before != z3After) || (z4Before != z4After))
+						double minDepth = 0.9;
+						if( (abs(z1Before - z1After) > minDepth) || (abs(z2Before - z2After) > minDepth) || (abs(z3Before - z3After) > minDepth) || (abs(z4Before - z4After) > minDepth))
 						{
-							maxZ = z1Before;
-							if(z2Before > maxZ)
-							{
-								maxZ = z2Before;
-							}
-							if(z3Before > maxZ)
-							{
-								maxZ = z3Before;
-							}
-							if(z3Before > maxZ)
-							{
-								maxZ = z3Before;
-							}
-							if(z1After > maxZ)
-							{
-								maxZ = z1After;
-							}
-							if(z2After > maxZ)
-							{
-								maxZ = z2After;
-							}
-							if(z3After > maxZ)
-							{
-								maxZ = z3After;
-							}
-							if(z4After > maxZ)
-							{
-								maxZ = z4After;
-							}
+						//if( (z1Before != z1After) || (z2Before != z2After) || (z3Before != z3After) || (z4Before != z4After))
+						//{}
 
-							minZ = z1Before;
-							if(z2Before < minZ)
-							{
-								minZ = z2Before;
-							}
-							if(z3Before < minZ)
-							{
-								minZ = z3Before;
-							}
-							if(z3Before < minZ)
-							{
-								minZ = z3Before;
-							}
-							if(z1After < minZ)
-							{
-								minZ = z1After;
-							}
-							if(z2After < minZ)
-							{
-								minZ = z2After;
-							}
-							if(z3After < minZ)
-							{
-								minZ = z3After;
-							}
-							if(z4After < minZ)
-							{
-								minZ = z4After;
-							}
+							maxZ = std::max({z1Before, z2Before, z3Before, z4Before});
 
-							maxZBefore = z1Before;
-							if(z2Before > maxZBefore)
-							{
-								maxZBefore = z2Before;
-							}
-							if(z3Before > maxZBefore)
-							{
-								maxZBefore = z3Before;
-							}
-							if(z3Before > maxZBefore)
-							{
-								maxZBefore = z3Before;
-							}
+							minZ = std::min({z1After, z2After, z3After, z4After});
+							
+							maxZBefore = maxZ;
 
-							minZBefore = z1Before;
-							if(z2Before < minZBefore)
-							{
-								minZBefore = z2Before;
-							}
-							if(z3Before < minZBefore)
-							{
-								minZBefore = z3Before;
-							}
-							if(z3Before < minZBefore)
-							{
-								minZBefore = z3Before;
-							}
+							minZBefore = std::min({z1Before, z2Before, z3Before, z4Before});
 
-							maxZAfter = z1After;
-							if(z2After > maxZ)
-							{
-								maxZ = z2After;
-							}
-							if(z3After > maxZ)
-							{
-								maxZ = z3After;
-							}
-							if(z4After > maxZ)
-							{
-								maxZ = z4After;
-							}
+							maxZAfter = std::max({z1After, z2After, z3After, z4After});
 
-							minZAfter = z1After;
-							if(z2After < minZAfter)
-							{
-								minZAfter = z2After;
-							}
-							if(z3After < minZAfter)
-							{
-								minZAfter = z3After;
-							}
-							if(z4After < minZAfter)
-							{
-								minZAfter = z4After;
-							}
+							minZAfter = minZ;
 
 							double deltaZBefore = maxZBefore - minZBefore;
-							double deltaZAfter = maxZAfter - minZBefore;
+							double deltaZAfter = maxZAfter - minZAfter;
 
-							double fourPointVolume = ((deltaX * deltaY) * ((maxZ - minZ) - ((1/2) * (deltaX * deltaY) * (deltaZBefore + deltaZAfter))));
-							//printf("((%f * %f) * ((%f - %f) - ((1/2) * (%f * %f) * (%f + %f))))\n", deltaX, deltaY, maxZ, minZ, deltaX, deltaY, deltaZBefore, deltaZAfter);
-							//printf("volume between the 4 points = %f\n", fourPointVolume);
-							if(fourPointVolume < 0){
-								volumeNeg += fourPointVolume;
+							// printf("before min/max = %f, %f\n", minZBefore, maxZBefore);
+							// printf("after min/max = %f, %f\n", minZAfter, maxZAfter);
+							// printf("overall min/max = %f, %f\n", minZ, maxZ);
+
+							double errorxDim = (1 / sqrt(4)) * sqrt(pow(0.38, 2) * 8); //???
+							double erroryDim = (1 / sqrt(4)) * sqrt(pow(0.38, 2) * 8); //???
+
+							double errorDeltaZBefore = sqrt(pow(0.9,2)*2);
+							double errorDeltaZAfter = sqrt(pow(0.9,2)*2);
+
+							double errorDeltaZs = sqrt(pow(errorDeltaZBefore, 2) + pow(errorDeltaZAfter, 2));
+							double errorZs = sqrt(pow(0.9,2)*2);
+
+							double volumePart1 = ((1/2) * (xDim * yDim) * (deltaZBefore + deltaZAfter));
+
+							double errorPart1;
+							if (volumePart1 == 0)
+							{
+								errorPart1 = 0;
+							}
+							else 
+							{
+								errorPart1 = volumePart1 * (1/sqrt(2)) * sqrt( pow((errorxDim/xDim), 2) + pow((erroryDim/yDim), 2) + pow(((errorDeltaZs)/(deltaZBefore+deltaZAfter)), 2)); //???
+							}
+
+							//printf("errorPart1 = %f\n", errorPart1);
+							
+							double volumePart2 = ((maxZ - minZ) - volumePart1);
+							double errorPart2 = volumePart2 * sqrt(pow(errorZs, 2) + pow(errorPart1, 2));
+							
+							// printf("z1b = %f, z2b = %f, z3b = %f, z4b = %f\n", z1Before, z2Before, z3Before, z4Before);
+							// printf("z1a = %f, z2a = %f, z3a = %f, z4a = %f\n", z1After, z2After, z3After, z4After);
+							// printf("errorZs = %f, volumePart2 = %f, maxZ = %f, minZ = %f\n", errorZs, volumePart2, maxZ, minZ);
+							// printf("errorPart2 = %f\n", errorPart2);	
+
+
+							double volumeCalculation = ((xDim * yDim) * volumePart2);
+
+							double volumeError = volumeCalculation * sqrt(pow((errorxDim/xDim), 2) + pow((erroryDim/yDim), 2) +  pow((errorPart2/volumePart2), 2) );
+					
+							errorList.emplace_back(volumeError);
+
+							//printf("volume error = %f\n", volumeError);
+							
+							//printf("((%f * %f) * ((%f - %f) - ((1/2) * (%f * %f) * (%f + %f))))\n", xDim, yDim, maxZ, minZ, xDim, yDim, deltaZBefore, deltaZAfter);
+							//printf("volume between the 4 points = %f\n", volumeCalculation);
+
+							volumePointFile <<  x1Before << ", " << y1Before << ", " << z1Before << ", " << x2Before << ", " << y2Before << ", " << z2Before << "\n";
+							volumePointFile <<  x3Before << ", " << y3Before << ", " << z3Before << ", " << x4Before << ", " << y4Before << ", " << z4Before << "\n\n";
+
+							volumePointFile <<  x1After << ", " << y1After << ", " << z1After << ", " << x2After << ", " << y2After << ", " << z2After << "\n";
+							volumePointFile <<  x3After << ", " << y3After << ", " << z3After << ", " << x4After << ", " << y4After << ", " << z4After << "\n\n";
+
+							if(volumeCalculation < 0){
+								volumeNeg += volumeCalculation;
+								// volumePointFile << "above 4 lines give negative volume\n\n";
+								// printf("x1b = %f, y1b = %f, z1b = %f		x2b = %f, y2b = %f, z2b = %f\n", x1Before, y1Before, z1Before, x2Before, y2Before, z2Before);
+								// printf("x3b = %f, y3b = %f, z3b = %f		x4b = %f, y4b = %f, z4b = %f\n", x3Before, y3Before, z3Before, x4Before, y4Before, z4Before);
+
+								// printf("x1a = %f, y1a = %f, z1a = %f		x2a = %f, y2a = %f, z2a = %f\n", x1After, y1After, z1After, x2After, y2After, z2After);
+								// printf("x3a = %f, y3a = %f, z3a = %f		x4a = %f, y4a = %f, z4a = %f\n\n", x3After, y3After, z3After, x4After, y4After, z4After);
+								
+								// printf("x1b = %f, x2b = %f, x3b = %f, x4b = %f, x1a = %f, x2a = %f, x3a = %f, x4a = %f\n",x1Before, x2Before, x3Before, x4Before, x1After, x2After, x3After, x4After);
+								// printf("((xDim * yDim) * ((maxZ - minZ) - ((1/2) * (xDim * yDim) * (deltaZBefore + deltaZAfter))))\n");
+								// printf("((%f * %f) * ((%f - %f) - ((1/2) * (%f * %f) * (%f + %f))))\n", xDim, yDim, maxZ, minZ, xDim, yDim, deltaZBefore, deltaZAfter);
+								// printf("Above = %f\n\n", volumeCalculation);
 							} else {
-								volumePos += fourPointVolume;
+								volumePos += volumeCalculation;
 							}
 						}
 						
 					}
 				}
-				printf("volumePos = %f, volumeNeg = %f, volumeNet = %f\n", volumePos, volumeNeg, (volumeNeg + volumePos));
+				volumePointFile.close();
+
+				int errorListSize = errorList.size();
+				for(int i = 0; i < errorListSize; i++)
+				{
+					totalError += pow(errorList[i], 2);
+				}
+				totalError = sqrt(totalError);
+
+				printf("volumeRemoved = %f, volumeAdded = %f, volumeNet = %f, error = %f\n", volumePos, abs(volumeNeg), (volumeNeg + volumePos), totalError);
 			}
 		}
 	}
