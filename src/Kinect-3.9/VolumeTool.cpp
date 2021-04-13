@@ -1,6 +1,5 @@
 #include "VolumeTool.h"
 
-
 #include <iostream>
 #include <algorithm>
 #include <Math/Math.h>
@@ -85,19 +84,11 @@ void VolumeTool::buttonCallback(int buttonSlotIndex,Vrui::InputDevice::ButtonCal
 			{
 				dragging=false;
 
-				// p0[0] = -538.108260;
-				// p0[1] = 402.579461;
-				// p1[0] = -122.329473;
-				// p1[1] = 85.795623;
-
 				printf("top left corner:     p0 = %f, %f\n", p0[0], p0[1]);
 				printf("bottom right corner: p1 = %f, %f\n", p1[0], p1[1]);
 
 				RawKinectViewer::CPoint imagePoint0 = application->getDepthImagePoint(p0);
 				RawKinectViewer::CPoint imagePoint1 = application->getDepthImagePoint(p1);
-
-				printf("top left corner:         imagePoint0 = %f, %f, %f\n", imagePoint0[0], imagePoint0[1], imagePoint0[2]);
-				printf("bottom right corner:     imagePoint0 = %f, %f, %f\n", imagePoint1[0], imagePoint1[1], imagePoint1[2]);
 
 				RawKinectViewer::CPoint worldPoint0 = application->intrinsicParameters.depthProjection.transform(imagePoint0);
 				RawKinectViewer::CPoint worldPoint1 = application->intrinsicParameters.depthProjection.transform(imagePoint1);
@@ -107,8 +98,6 @@ void VolumeTool::buttonCallback(int buttonSlotIndex,Vrui::InputDevice::ButtonCal
 
 				xValEnd = floor(p1[0]);
 				yValEnd = floor(p1[1]);
-
-				//TODO: Add a case statement or if conditions for each possible starting corner
 				
 				xSize = (floor(p1[0]) - floor(p0[0]));
 				ySize = (floor(p0[1]) - floor(p1[1]));
@@ -320,7 +309,6 @@ void VolumeTool::buttonCallback(int buttonSlotIndex,Vrui::InputDevice::ButtonCal
 						std::sort(medianArray, medianArray+5);
 						beforeDepthArray[xPos][yPos][2] = medianArray[2];
 
-
 						// Code for mean of 5 collections
 						// double mean = (b1[xPos][yPos][0] + b2[xPos][yPos][0] + b3[xPos][yPos][0] + b4[xPos][yPos][0] + b5[xPos][yPos][0])/5;
 						// beforeDepthArray[xPos][yPos][0] = mean;
@@ -348,6 +336,85 @@ void VolumeTool::buttonCallback(int buttonSlotIndex,Vrui::InputDevice::ButtonCal
 				outFile.close();
 				pointFile.close();
 				xMatrix.close();
+
+				//If z value is an unexpected extreme, average over surrounding values
+				for(double xValStart = floor(p0[0]); xValStart < xValEnd; xValStart = xValStart + 1)
+				{
+					for(double yValStart = floor(p0[1]); yValStart > yValEnd; yValStart = yValStart - 1)
+					{
+						int xPos = ((xValEnd - xValStart) -1);
+						int yPos = ((yValStart - yValEnd) -1);
+						if ((beforeDepthArray[xPos][yPos][2] > -110) || (beforeDepthArray[xPos][yPos][2] < -200))
+						{
+							//printf("z is extreme = %f\n", beforeDepthArray[xPos][yPos][2] );
+							if((xPos > 0) && (yPos > 0))
+							{
+								double average = (beforeDepthArray[xPos-1][yPos-1][2] + beforeDepthArray[xPos-1][yPos][2] + 
+									beforeDepthArray[xPos-1][yPos+1][2] + beforeDepthArray[xPos][yPos-1][2] + beforeDepthArray[xPos][yPos+1][2] + 
+									beforeDepthArray[xPos+1][yPos-1][2] + beforeDepthArray[xPos+1][yPos][2] + beforeDepthArray[xPos+1][yPos+1][2])/8;
+
+								beforeDepthArray[xPos][yPos][2] = average;
+							}
+							else if((xPos == 0) && (yPos == 0))
+							{
+								double average = (beforeDepthArray[xPos+1][yPos][2] + beforeDepthArray[xPos][yPos+1][2] + 
+									beforeDepthArray[xPos+1][yPos+1][2])/3;
+
+								beforeDepthArray[xPos][yPos][2] = average;
+							}
+							else if((xPos == 0) && (yPos == ySize-1))
+							{
+								double average = (beforeDepthArray[xPos][yPos-1][2] + beforeDepthArray[xPos+1][yPos-1][2] + 
+									beforeDepthArray[xPos+1][yPos][2])/3;
+
+								beforeDepthArray[xPos][yPos][2] = average;
+							}
+							else if((xPos == xSize-1) && (yPos == 0))
+							{
+								double average = (beforeDepthArray[xPos-1][yPos][2] + beforeDepthArray[xPos-1][yPos-1][2] + 
+									beforeDepthArray[xPos][yPos+1][2])/3;
+
+								beforeDepthArray[xPos][yPos][2] = average;
+							}
+							else if((xPos == xSize-1) && (yPos == ySize-1))
+							{
+								double average = (beforeDepthArray[xPos-1][yPos][2] + beforeDepthArray[xPos-1][yPos-1][2] + 
+									beforeDepthArray[xPos][yPos-1][2])/3;
+
+								beforeDepthArray[xPos][yPos][2] = average;
+							}
+							else if((xPos == 0))
+							{
+								double average = (beforeDepthArray[xPos][yPos-1][2] + beforeDepthArray[xPos+1][yPos-1][2] + 
+									beforeDepthArray[xPos+1][yPos][2] + beforeDepthArray[xPos+1][yPos+1][2] + beforeDepthArray[xPos][yPos+1][2])/5;
+
+								beforeDepthArray[xPos][yPos][2] = average;
+							}
+							else if((yPos == 0))
+							{
+								double average = (beforeDepthArray[xPos-1][yPos][2] + beforeDepthArray[xPos-1][yPos+1][2] + 
+									beforeDepthArray[xPos][yPos+1][2] + beforeDepthArray[xPos+1][yPos+1][2] + beforeDepthArray[xPos+1][yPos][2])/5;
+
+								beforeDepthArray[xPos][yPos][2] = average;
+							}
+							else if((xPos == xSize-1))
+							{
+								double average = (beforeDepthArray[xPos][yPos-1][2] + beforeDepthArray[xPos-1][yPos-1][2] + 
+									beforeDepthArray[xPos-1][yPos][2] + beforeDepthArray[xPos-1][yPos+1][2] + beforeDepthArray[xPos][yPos+1][2])/5;
+
+								beforeDepthArray[xPos][yPos][2] = average;
+							}
+							else if((yPos == ySize-1))
+							{
+								double average = (beforeDepthArray[xPos-1][yPos][2] + beforeDepthArray[xPos-1][yPos-1][2] + 
+									beforeDepthArray[xPos][yPos-1][2] + beforeDepthArray[xPos+1][yPos-1][2] + beforeDepthArray[xPos+1][yPos][2])/5;
+
+								beforeDepthArray[xPos][yPos][2] = average;
+							}
+						}
+					}
+				}
+
 			}
 			else
 			{
@@ -546,9 +613,6 @@ void VolumeTool::buttonCallback(int buttonSlotIndex,Vrui::InputDevice::ButtonCal
 						std::sort(medianArray, medianArray+5);
 						afterDepthArray[xPos][yPos][1] = medianArray[2];
 
-						afterDepthArray[xPos][yPos][0] = beforeDepthArray[xPos][yPos][0];
-						afterDepthArray[xPos][yPos][1] = beforeDepthArray[xPos][yPos][1];
-
 						medianArray[0] = a1[xPos][yPos][2];
 						medianArray[1] = a2[xPos][yPos][2];
 						medianArray[2] = a3[xPos][yPos][2];
@@ -557,7 +621,6 @@ void VolumeTool::buttonCallback(int buttonSlotIndex,Vrui::InputDevice::ButtonCal
 
 						std::sort(medianArray, medianArray+5);
 						afterDepthArray[xPos][yPos][2] = medianArray[2];
-						
 
 						//Code for mean of 5 collections
 						// double mean = (a1[xPos][yPos][0] + a2[xPos][yPos][0] + a3[xPos][yPos][0] + a4[xPos][yPos][0] + a5[xPos][yPos][0])/5;
@@ -584,26 +647,205 @@ void VolumeTool::buttonCallback(int buttonSlotIndex,Vrui::InputDevice::ButtonCal
 				outFile2.close();
 				pointFile2.close();
 
+				//If z value is an unexpected extreme, average over surrounding values
+				for(double xValStart = floor(p0[0]); xValStart < xValEnd; xValStart = xValStart + 1)
+				{
+					for(double yValStart = floor(p0[1]); yValStart > yValEnd; yValStart = yValStart - 1)
+					{
+						int xPos = ((xValEnd - xValStart) -1);
+						int yPos = ((yValStart - yValEnd) -1);
+						if ((afterDepthArray[xPos][yPos][2] > -110) || (afterDepthArray[xPos][yPos][2] < -200))
+						{
+							//printf("z is extreme = %f\n", afterDepthArray[xPos][yPos][2] );
+							if((xPos > 0) && (yPos > 0))
+							{
+								double average = (afterDepthArray[xPos-1][yPos-1][2] + afterDepthArray[xPos-1][yPos][2] + 
+									afterDepthArray[xPos-1][yPos+1][2] + afterDepthArray[xPos][yPos-1][2] + afterDepthArray[xPos][yPos+1][2] + 
+									afterDepthArray[xPos+1][yPos-1][2] + afterDepthArray[xPos+1][yPos][2] + afterDepthArray[xPos+1][yPos+1][2])/8;
+
+								afterDepthArray[xPos][yPos][2] = average;
+							}
+							else if((xPos == 0) && (yPos == 0))
+							{
+								double average = (afterDepthArray[xPos+1][yPos][2] + afterDepthArray[xPos][yPos+1][2] + 
+									afterDepthArray[xPos+1][yPos+1][2])/3;
+
+								afterDepthArray[xPos][yPos][2] = average;
+							}
+							else if((xPos == 0) && (yPos == ySize-1))
+							{
+								double average = (afterDepthArray[xPos][yPos-1][2] + afterDepthArray[xPos+1][yPos-1][2] + 
+									afterDepthArray[xPos+1][yPos][2])/3;
+
+								afterDepthArray[xPos][yPos][2] = average;
+							}
+							else if((xPos == xSize-1) && (yPos == 0))
+							{
+								double average = (afterDepthArray[xPos-1][yPos][2] + afterDepthArray[xPos-1][yPos-1][2] + 
+									afterDepthArray[xPos][yPos+1][2])/3;
+
+								afterDepthArray[xPos][yPos][2] = average;
+							}
+							else if((xPos == xSize-1) && (yPos == ySize-1))
+							{
+								double average = (afterDepthArray[xPos-1][yPos][2] + afterDepthArray[xPos-1][yPos-1][2] + 
+									afterDepthArray[xPos][yPos-1][2])/3;
+
+								afterDepthArray[xPos][yPos][2] = average;
+							}
+							else if((xPos == 0))
+							{
+								double average = (afterDepthArray[xPos][yPos-1][2] + afterDepthArray[xPos+1][yPos-1][2] + 
+									afterDepthArray[xPos+1][yPos][2] + afterDepthArray[xPos+1][yPos+1][2] + afterDepthArray[xPos][yPos+1][2])/5;
+
+								afterDepthArray[xPos][yPos][2] = average;
+							}
+							else if((yPos == 0))
+							{
+								double average = (afterDepthArray[xPos-1][yPos][2] + afterDepthArray[xPos-1][yPos+1][2] + 
+									afterDepthArray[xPos][yPos+1][2] + afterDepthArray[xPos+1][yPos+1][2] + afterDepthArray[xPos+1][yPos][2])/5;
+
+								afterDepthArray[xPos][yPos][2] = average;
+							}
+							else if((xPos == xSize-1))
+							{
+								double average = (afterDepthArray[xPos][yPos-1][2] + afterDepthArray[xPos-1][yPos-1][2] + 
+									afterDepthArray[xPos-1][yPos][2] + afterDepthArray[xPos-1][yPos+1][2] + afterDepthArray[xPos][yPos+1][2])/5;
+
+								afterDepthArray[xPos][yPos][2] = average;
+							}
+							else if((yPos == ySize-1))
+							{
+								double average = (afterDepthArray[xPos-1][yPos][2] + afterDepthArray[xPos-1][yPos-1][2] + 
+									afterDepthArray[xPos][yPos-1][2] + afterDepthArray[xPos+1][yPos-1][2] + afterDepthArray[xPos+1][yPos][2])/5;
+
+								afterDepthArray[xPos][yPos][2] = average;
+							}
+						}
+					}
+				}
+
 				//Volume calculation code			
 				double volumePos = 0;
 				double volumeNeg = 0;
 				double totalError = 0;
+				double negativeError = 0;
+				double positiveError = 0;
 				std::vector<double> errorList;
+				std::vector<double> negativeErrorList;
+				std::vector<double> positiveErrorList;
 
 				std::ofstream volumePointFile;
 				volumePointFile.open("volumePointFile.csv");
+
+				//Test 5x5 matrix for sanity
+				// double ***newBefore;
+
+				// newBefore = new double **[5];
+				// for(int i = 0; i < 5; i++)
+				// {
+				// 	newBefore[i] = new double *[5];
+				// 	for(int j = 0; j < 5; j++)
+				// 	{
+				// 		newBefore[i][j] = new double [3];
+				// 	}
+				// }
+
+				// double ***newAfter;
+
+				// newAfter = new double **[5];
+				// for(int i = 0; i < 5; i++)
+				// {
+				// 	newAfter[i] = new double *[5];
+				// 	for(int j = 0; j < 5; j++)
+				// 	{
+				// 		newAfter[i][j] = new double [3];
+				// 	}
+				// }
+
+				// double x = 0;
+				// double y = 0;
+				// double z = 0;
+
+				// for(int i = 0; i < 5; i++)
+				// {
+				// 	y = 0;
+				// 	for(int j = 0; j < 5; j++)
+				// 	{
+				// 		newBefore[i][j][0] = x;
+				// 		newBefore[i][j][1] = y;
+				// 		newBefore[i][j][2] = z;
+
+				// 		newAfter[i][j][0] = x;
+				// 		newAfter[i][j][1] = y;
+				// 		newAfter[i][j][2] = z;
+				// 		y += 0.30;
+				// 	}
+				// 	x += 0.30;
+				// }
+
+				// newAfter[1][1][2] = 10.0;
+				// newAfter[1][2][2]= 10.0;
+				// newAfter[1][3][2] = 10.0;
+
+				// newAfter[2][1][2] = 10.0;
+				// newAfter[2][2][2] = 10.0;
+				// newAfter[2][3][2] = 10.0;
+
+				// newAfter[3][1][2] = 10.0;
+				// newAfter[3][2][2] = 10.0;
+				// newAfter[3][3][2] = 10.0;
+
+				//Initial average for handling extreme x and y dimensions
+				double xDimAverage = 0; //0.27;
+				double yDimAverage = 0; //0.27;
+
+				double averageZ = 0;
+
+				//double calcCount = 0;
+				//double weirdCaseCount = 0;
+
+				// double xError = 0;
+				// int xCount = 0;
+				// double yError = 0;
+				// int yCount = 0;
+				// double zError = 0;
+				// int zCount = 0;
+
+				double singleX = 0;
+				double singleY = 0;
+
+				for(int i = 0; i < xSize-1; i++) //xSize
+				{
+					double x1Before = beforeDepthArray[i][0][0];
+					double x2Before = beforeDepthArray[i+1][0][0];
+
+					singleX += abs(x1Before - x2Before);
+				}
+				//printf("x length = %f\n", singleX);
+
+				for(int i = 0; i < ySize-1; i++) //xSize
+				{
+					double y1Before = beforeDepthArray[0][i][1];
+					double y3Before = beforeDepthArray[0][i+1][1];
+					singleY += abs(y3Before - y1Before);
+				}
+				//printf("y length = %f\n", singleY);
+				singleY = 0;
+
 
 				for(int i = 0; i < xSize-1; i++) //xSize
 				{
 					for(int j = 0; j < ySize-1; j++) //ySize
 					{
+						//Set the 4 before and 4 after points
 						double x1Before = beforeDepthArray[i][j][0];
 						double y1Before = beforeDepthArray[i][j][1];
 						double z1Before = beforeDepthArray[i][j][2];
 
 						double x2Before = beforeDepthArray[i+1][j][0];
 						double y2Before = beforeDepthArray[i+1][j][1];
-						double z2Before = beforeDepthArray[i+1][j][2];
+						double z2Before = beforeDepthArray[i+1][j][2];;
 
 						double x3Before = beforeDepthArray[i][j+1][0];
 						double y3Before = beforeDepthArray[i][j+1][1];
@@ -629,11 +871,143 @@ void VolumeTool::buttonCallback(int buttonSlotIndex,Vrui::InputDevice::ButtonCal
 						double y4After = afterDepthArray[i+1][j+1][1];
 						double z4After = afterDepthArray[i+1][j+1][2];
 
-						double xDim = ( abs(x1Before - x2Before) + abs(x3Before - x4Before) + abs(x1After - x2After) + abs(x3After - x4After) )/4;
-						double yDim = ( abs(y3Before - y1Before) + abs(y4Before - y2Before) + abs(y3After - y1After) + abs(y4After - y2After) )/4;
+						//Points to use for the test matrix, need to set the for loops to 5-1 as well
+						// double x1Before = newAfter[i][j][0];
+						// double y1Before = newAfter[i][j][1];
+						// double z1Before = newAfter[i][j][2];
 
-						double minZ;
-						double maxZ;
+						// double x2Before = newAfter[i+1][j][0];
+						// double y2Before = newAfter[i+1][j][1];
+						// double z2Before = newAfter[i+1][j][2];
+
+						// double x3Before = newAfter[i][j+1][0];
+						// double y3Before = newAfter[i][j+1][1];
+						// double z3Before = newAfter[i][j+1][2];
+
+						// double x4Before = newAfter[i+1][j+1][0];
+						// double y4Before = newAfter[i+1][j+1][1];
+						// double z4Before = newAfter[i+1][j+1][2];
+
+						// double x1After = newBefore[i][j][0];
+						// double y1After = newBefore[i][j][1];
+						// double z1After = newBefore[i][j][2];
+
+						// double x2After = newBefore[i+1][j][0];
+						// double y2After = newBefore[i+1][j][1];
+						// double z2After = newBefore[i+1][j][2];
+
+						// double x3After = newBefore[i][j+1][0];
+						// double y3After = newBefore[i][j+1][1];
+						// double z3After = newBefore[i][j+1][2];
+
+						// double x4After = newBefore[i+1][j+1][0];
+						// double y4After = newBefore[i+1][j+1][1];
+						// double z4After = newBefore[i+1][j+1][2];
+
+
+						// if(abs(x1Before-x1After) > 0){
+						// 	xCount++;
+						// 	xError += abs(x1Before-x1After);
+						// }
+						// if(abs(x2Before-x2After) > 0){
+						// 	xCount++;
+						// 	xError += abs(x2Before-x2After);
+						// }
+						// if(abs(x3Before-x3After) > 0){
+						// 	xCount++;
+						// 	xError += abs(x3Before-x3After);
+						// }
+						// if(abs(x4Before-x4After) > 0){
+						// 	xCount++;
+						// 	xError += abs(x4Before-x4After);
+						// }
+						
+						// if(abs(y1Before-y1After) > 0){
+						// 	yCount++;
+						// 	yError += abs(y1Before-y1After);
+						// }
+						// if(abs(y2Before-y2After) > 0){
+						// 	yCount++;
+						// 	yError += abs(y2Before-y2After);
+						// }
+						// if(abs(y3Before-y3After) > 0){
+						// 	yCount++;
+						// 	yError += abs(y3Before-y3After);
+						// }
+						// if(abs(y4Before-y4After) > 0){
+						// 	yCount++;
+						// 	yError += abs(y4Before-y4After);
+						// }
+
+						// if(abs(z1Before-z1After) > 0){
+						// 	zCount++;
+						// 	zError += abs(z1Before-z1After);
+						// }
+						// if(abs(z2Before-z2After) > 0){
+						// 	zCount++;
+						// 	zError += abs(z2Before-z2After);
+						// }
+						// if(abs(z3Before-z3After) > 0){
+						// 	zCount++;
+						// 	zError += abs(z3Before-z3After);
+						// }
+						// if(abs(z4Before-z4After) > 0){
+						// 	zCount++;
+						// 	zError += abs(z4Before-z4After);
+						// }
+
+
+						//Substract the expected error at the given z value for this dimension
+						double deltaX1 = abs(x1Before - x2Before) - ((abs(x1Before - x2Before) * (-0.0022*((z1Before+z2Before)/2) - 0.2976)));
+						double deltaX2 = abs(x3Before - x4Before) - ((abs(x3Before - x4Before) * (-0.0022*((z3Before+z4Before)/2) - 0.2976)));
+						double deltaX3 = abs(x1After - x2After) - ((abs(x1After - x2After) * (-0.0022*((z1After+z2After)/2) - 0.2976)));
+						double deltaX4 = abs(x3After - x4After) - ((abs(x3After - x4After) * (-0.0022*((z3After+z4After)/2) - 0.2976)));
+
+						double xDim = (deltaX1+deltaX2+deltaX3+deltaX4)/4;
+
+						// double xDim = (abs(x1Before - x2Before) + abs(x3Before - x4Before) + abs(x1After - x2After) + abs(x3After - x4After))/4;
+						
+						//printf("xDim = %f\n", xDim);
+
+						double deltaY1 = abs(y3Before - y1Before) - (abs(y3Before - y1Before) * (-0.0028*((z3Before+z1Before)/2) - 0.3906));
+						double deltaY2 = abs(y4Before - y2Before) - (abs(y4Before - y2Before) * (-0.0028*((z4Before+z2Before)/2) - 0.3906));
+						double deltaY3 = abs(y3After - y1After) - (abs(y3After - y1After) * (-0.0028*((z3After+z1After)/2) - 0.3906));
+						double deltaY4 = abs(y4After - y2After) - (abs(y4After - y2After) * (-0.0028*((z4After+z2After)/2) - 0.3906));
+
+						double yDim = (deltaY1+deltaY2+deltaY3+deltaY4)/4;
+
+						// double yDim = (abs(y3Before - y1Before) + abs(y4Before - y2Before) + abs(y3After - y1After) + abs(y4After - y2After))/4;
+						
+						//printf("yDim = %f\n", yDim);
+
+						if((xDimAverage == 0) && (yDimAverage == 0))
+						{
+							xDimAverage = xDim;
+							yDimAverage = yDim;
+						}
+						
+						//x dimension is more than 2 times, set it to the average
+						if((xDim > (xDimAverage*2)) || (xDim < (xDimAverage/2)))
+						{
+							xDim = xDimAverage;
+						}
+						//add to the average
+						xDimAverage = (xDimAverage + xDim)/2;
+
+						//y dimension is more than 2 times, set it to the average
+						if((yDim > (yDimAverage*2)) || (yDim < (yDimAverage/2)))
+						{
+							yDim = yDimAverage;
+						}
+						//add to the average
+						yDimAverage = (yDimAverage + yDim)/2;
+
+
+						averageZ = (z1Before + z2Before + z3Before + z4Before + z1After + z2After + z3After + z4After)/8;
+
+						double minZ = 0;
+						double maxZ = 0;
+						bool conflictingPoints = false;
 
 						double minZBefore;
 						double maxZBefore;
@@ -641,101 +1015,102 @@ void VolumeTool::buttonCallback(int buttonSlotIndex,Vrui::InputDevice::ButtonCal
 						double minZAfter;
 						double maxZAfter;
 
-						//Minimum depth to reduce error?
+						//Minimum depth change to reduce error
 						double minDepth = 0.9;
-						if( (abs(z1Before - z1After) > minDepth) || (abs(z2Before - z2After) > minDepth) || (abs(z3Before - z3After) > minDepth) || (abs(z4Before - z4After) > minDepth))
-						{
-						//if( (z1Before != z1After) || (z2Before != z2After) || (z3Before != z3After) || (z4Before != z4After))
-						//{}
+						if( (abs(z1Before - z1After) > minDepth) && (abs(z2Before - z2After) > minDepth) && (abs(z3Before - z3After) > minDepth) && (abs(z4Before - z4After) > minDepth))
+						{		
+							singleY += yDim;
 
-							maxZ = std::max({z1Before, z2Before, z3Before, z4Before});
-
-							minZ = std::min({z1After, z2After, z3After, z4After});
-							
-							maxZBefore = maxZ;
-
+							maxZBefore = std::max({z1Before, z2Before, z3Before, z4Before});
 							minZBefore = std::min({z1Before, z2Before, z3Before, z4Before});
-
 							maxZAfter = std::max({z1After, z2After, z3After, z4After});
+							minZAfter = std::min({z1After, z2After, z3After, z4After});
 
-							minZAfter = minZ;
-
-							double deltaZBefore = maxZBefore - minZBefore;
-							double deltaZAfter = maxZAfter - minZAfter;
-
-							// printf("before min/max = %f, %f\n", minZBefore, maxZBefore);
-							// printf("after min/max = %f, %f\n", minZAfter, maxZAfter);
-							// printf("overall min/max = %f, %f\n", minZ, maxZ);
-
-							double errorxDim = (1 / sqrt(4)) * sqrt(pow(0.38, 2) * 8); //???
-							double erroryDim = (1 / sqrt(4)) * sqrt(pow(0.38, 2) * 8); //???
-
-							double errorDeltaZBefore = sqrt(pow(0.9,2)*2);
-							double errorDeltaZAfter = sqrt(pow(0.9,2)*2);
-
-							double errorDeltaZs = sqrt(pow(errorDeltaZBefore, 2) + pow(errorDeltaZAfter, 2));
-							double errorZs = sqrt(pow(0.9,2)*2);
-
-							double volumePart1 = ((1/2) * (xDim * yDim) * (deltaZBefore + deltaZAfter));
-
-							double errorPart1;
-							if (volumePart1 == 0)
+							if((z1Before > z1After) && (z2Before > z2After) && (z3Before > z3After) && (z4Before > z4After))
 							{
-								errorPart1 = 0;
+								maxZ = maxZBefore;
+								minZ = minZAfter;
 							}
-							else 
+							else if((z1Before < z1After) && (z2Before < z2After) && (z3Before < z3After) && (z4Before < z4After))
 							{
-								errorPart1 = volumePart1 * (1/sqrt(2)) * sqrt( pow((errorxDim/xDim), 2) + pow((erroryDim/yDim), 2) + pow(((errorDeltaZs)/(deltaZBefore+deltaZAfter)), 2)); //???
+								maxZ = minZBefore;
+								minZ = maxZAfter;
 							}
-
-							//printf("errorPart1 = %f\n", errorPart1);
+							else
+							{
+								// This case occurs very rarely when the before points are not all greater
+								// or less than the after. Volume of these cases is ignored since it is 
+								// minimal. 10-25 times out of 21000
+								conflictingPoints = true;
+								//weirdCaseCount++;
+							}
 							
-							double volumePart2 = ((maxZ - minZ) - volumePart1);
-							double errorPart2 = volumePart2 * sqrt(pow(errorZs, 2) + pow(errorPart1, 2));
-							
-							// printf("z1b = %f, z2b = %f, z3b = %f, z4b = %f\n", z1Before, z2Before, z3Before, z4Before);
-							// printf("z1a = %f, z2a = %f, z3a = %f, z4a = %f\n", z1After, z2After, z3After, z4After);
-							// printf("errorZs = %f, volumePart2 = %f, maxZ = %f, minZ = %f\n", errorZs, volumePart2, maxZ, minZ);
-							// printf("errorPart2 = %f\n", errorPart2);	
+							if(!conflictingPoints)
+							{
+								double deltaZBefore = maxZBefore - minZBefore;
+								double deltaZAfter = maxZAfter - minZAfter;
 
+								double xDimError = 0.12;
+								double yDimError = 0.10; 
+								double zDimError = 0.90;
 
-							double volumeCalculation = ((xDim * yDim) * volumePart2);
+								double errorXDim = sqrt(pow(xDimError, 2) * 8) * 0.25;
+								double errorYDim = sqrt(pow(yDimError, 2) * 8) * 0.25;
 
-							double volumeError = volumeCalculation * sqrt(pow((errorxDim/xDim), 2) + pow((erroryDim/yDim), 2) +  pow((errorPart2/volumePart2), 2) );
-					
-							errorList.emplace_back(volumeError);
+								double errorDeltaZs = sqrt(pow(zDimError, 2) * 4);
+								double errorZs = sqrt(pow(zDimError, 2) * 2);
 
-							//printf("volume error = %f\n", volumeError);
-							
-							//printf("((%f * %f) * ((%f - %f) - ((1/2) * (%f * %f) * (%f + %f))))\n", xDim, yDim, maxZ, minZ, xDim, yDim, deltaZBefore, deltaZAfter);
-							//printf("volume between the 4 points = %f\n", volumeCalculation);
+								double volumePart1 = (0.5) * (deltaZBefore + deltaZAfter);
 
-							volumePointFile <<  x1Before << ", " << y1Before << ", " << z1Before << ", " << x2Before << ", " << y2Before << ", " << z2Before << "\n";
-							volumePointFile <<  x3Before << ", " << y3Before << ", " << z3Before << ", " << x4Before << ", " << y4Before << ", " << z4Before << "\n\n";
+								double errorPart1 = errorDeltaZs/2;
 
-							volumePointFile <<  x1After << ", " << y1After << ", " << z1After << ", " << x2After << ", " << y2After << ", " << z2After << "\n";
-							volumePointFile <<  x3After << ", " << y3After << ", " << z3After << ", " << x4After << ", " << y4After << ", " << z4After << "\n\n";
+								double volumePart2;
+								if((maxZ-minZ) > 0){
+									volumePart2 = ((maxZ - minZ) - volumePart1);
+								}
+								else
+								{
+									volumePart2 = ((maxZ - minZ) + volumePart1);
+								}
+									
+								double errorPart2 = sqrt(pow(errorZs, 2) + pow(errorPart1, 2));
 
-							if(volumeCalculation < 0){
-								volumeNeg += volumeCalculation;
-								// volumePointFile << "above 4 lines give negative volume\n\n";
-								// printf("x1b = %f, y1b = %f, z1b = %f		x2b = %f, y2b = %f, z2b = %f\n", x1Before, y1Before, z1Before, x2Before, y2Before, z2Before);
-								// printf("x3b = %f, y3b = %f, z3b = %f		x4b = %f, y4b = %f, z4b = %f\n", x3Before, y3Before, z3Before, x4Before, y4Before, z4Before);
+								double volumeCalculation = ((xDim * yDim) * volumePart2);
+								//printf("x = %f, y = %f, z = %f\n", xDim, yDim, volumePart2);
 
-								// printf("x1a = %f, y1a = %f, z1a = %f		x2a = %f, y2a = %f, z2a = %f\n", x1After, y1After, z1After, x2After, y2After, z2After);
-								// printf("x3a = %f, y3a = %f, z3a = %f		x4a = %f, y4a = %f, z4a = %f\n\n", x3After, y3After, z3After, x4After, y4After, z4After);
+								double volumeError;
+								if (volumePart2 != 0)
+								{
+									volumeError = abs(volumeCalculation) * sqrt(pow((errorXDim/xDim), 2) + pow((errorYDim/yDim), 2) +  pow((errorPart2/volumePart2), 2));
+								}
+								else
+								{
+									volumeError = abs(volumeCalculation) * sqrt(pow((errorXDim/xDim), 2) + pow((errorYDim/yDim), 2));
+								}
 								
-								// printf("x1b = %f, x2b = %f, x3b = %f, x4b = %f, x1a = %f, x2a = %f, x3a = %f, x4a = %f\n",x1Before, x2Before, x3Before, x4Before, x1After, x2After, x3After, x4After);
-								// printf("((xDim * yDim) * ((maxZ - minZ) - ((1/2) * (xDim * yDim) * (deltaZBefore + deltaZAfter))))\n");
-								// printf("((%f * %f) * ((%f - %f) - ((1/2) * (%f * %f) * (%f + %f))))\n", xDim, yDim, maxZ, minZ, xDim, yDim, deltaZBefore, deltaZAfter);
-								// printf("Above = %f\n\n", volumeCalculation);
-							} else {
-								volumePos += volumeCalculation;
+								errorList.emplace_back(volumeError);
+
+								volumePointFile <<  x1Before << ", " << y1Before << ", " << z1Before << ", " << x2Before << ", " << y2Before << ", " << z2Before << "\n";
+								volumePointFile <<  x3Before << ", " << y3Before << ", " << z3Before << ", " << x4Before << ", " << y4Before << ", " << z4Before << "\n\n";
+
+								volumePointFile <<  x1After << ", " << y1After << ", " << z1After << ", " << x2After << ", " << y2After << ", " << z2After << "\n";
+								volumePointFile <<  x3After << ", " << y3After << ", " << z3After << ", " << x4After << ", " << y4After << ", " << z4After << "\n\n";
+
+								if(volumeCalculation < 0){
+									volumeNeg += volumeCalculation;
+									negativeErrorList.emplace_back(volumeError);
+								} else {
+									volumePos += volumeCalculation;
+									positiveErrorList.emplace_back(volumeError);
+								}
 							}
 						}
-						
 					}
+					// printf("y length calced = %f\n", singleY);
+					// singleY = 0;
 				}
+
+
 				volumePointFile.close();
 
 				int errorListSize = errorList.size();
@@ -745,7 +1120,26 @@ void VolumeTool::buttonCallback(int buttonSlotIndex,Vrui::InputDevice::ButtonCal
 				}
 				totalError = sqrt(totalError);
 
-				printf("volumeRemoved = %f, volumeAdded = %f, volumeNet = %f, error = %f\n", volumePos, abs(volumeNeg), (volumeNeg + volumePos), totalError);
+				errorListSize = negativeErrorList.size();
+				for(int i = 0; i < errorListSize; i++)
+				{
+					negativeError += pow(negativeErrorList[i], 2);
+				}
+				negativeError = sqrt(negativeError);
+
+				errorListSize = positiveErrorList.size();
+				for(int i = 0; i < errorListSize; i++)
+				{
+					positiveError += pow(positiveErrorList[i], 2);
+				}
+				positiveError = sqrt(positiveError);
+
+				//double percentWeird = weirdCaseCount/calcCount;
+
+				printf("Average x = %f, y = %f, z = %f\n", xDimAverage, yDimAverage, averageZ);
+				printf("volumeRemoved = %f +/- %f, volumeAdded = %f +/- %f, volumeNet = %f +/- %f\n", volumePos, positiveError, abs(volumeNeg), negativeError, (volumeNeg + volumePos), totalError);
+				//printf("Percentage of weird case = %f/%f = %f\n", weirdCaseCount, calcCount, percentWeird);
+				//printf("X Error = %f, Y Error = %f, Z Error = %f\n", xError/xCount,  yError/yCount, zError/zCount);
 			}
 		}
 	}
@@ -773,7 +1167,7 @@ void VolumeTool::display(GLContextData& contextData) const
 		glLoadMatrix(displayState.modelviewNavigational);
 		
 		/* Draw the current rectangle: */
-		glColor3f(0.0f,0.333f,0.0f);
+		glColor3f(0.0f,0.0f,0.0f);
 		glBegin(GL_LINE_LOOP);
 		glVertex3d(p0[0],p0[1],0.01);
 		glVertex3d(p1[0],p0[1],0.01);
