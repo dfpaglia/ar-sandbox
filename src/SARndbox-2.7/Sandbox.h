@@ -192,7 +192,6 @@ class Sandbox:public Vrui::Application,public GLObject
 	friend class DEMTool;
 	friend class BathymetrySaverTool;
 	friend class RemoteServer;
-	friend class VolumeTool;
 	
 	/* Elements: */
 	private:

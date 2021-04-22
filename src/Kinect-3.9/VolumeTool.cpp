@@ -80,29 +80,19 @@ void VolumeTool::buttonCallback(int buttonSlotIndex,Vrui::InputDevice::ButtonCal
 		}
 	else // Button was just released
 		{
-			if(!button2)
+			if(!button2) //Actions for the first button
 			{
 				dragging=false;
+				printf("Area selected\n");
 
-				printf("top left corner:     p0 = %f, %f\n", p0[0], p0[1]);
-				printf("bottom right corner: p1 = %f, %f\n", p1[0], p1[1]);
-
-				RawKinectViewer::CPoint imagePoint0 = application->getDepthImagePoint(p0);
-				RawKinectViewer::CPoint imagePoint1 = application->getDepthImagePoint(p1);
-
-				RawKinectViewer::CPoint worldPoint0 = application->intrinsicParameters.depthProjection.transform(imagePoint0);
-				RawKinectViewer::CPoint worldPoint1 = application->intrinsicParameters.depthProjection.transform(imagePoint1);
-
-				std::cout<<std::setw(20)<<worldPoint0<<std::endl;
-				std::cout<<std::setw(20)<<worldPoint1<<std::endl;
-
+				//Collect points for drawn box
 				xValEnd = floor(p1[0]);
 				yValEnd = floor(p1[1]);
 				
 				xSize = (floor(p1[0]) - floor(p0[0]));
 				ySize = (floor(p0[1]) - floor(p1[1]));
-				std::cout << "xSize = " << xSize << ", ySize = " << ySize << std::endl;
 
+				//Initialize 3D arrays
 				beforeDepthArray = new double **[xSize];
 				for(int i = 0; i < xSize; i++)
 				{
@@ -162,7 +152,8 @@ void VolumeTool::buttonCallback(int buttonSlotIndex,Vrui::InputDevice::ButtonCal
 						b5[i][j] = new double [3];
 					}
 				}	
-
+				
+				//Collect depth image points and convert them to cm, storing in them in their respective x,y position in the array
 				for(double xValStart = floor(p0[0]); xValStart < xValEnd; xValStart = xValStart + 1)
 				{
 					for(double yValStart = floor(p0[1]); yValStart > yValEnd; yValStart = yValStart - 1)
@@ -264,15 +255,7 @@ void VolumeTool::buttonCallback(int buttonSlotIndex,Vrui::InputDevice::ButtonCal
 					}
 				}
 
-				std::ofstream outFile;
-				outFile.open("matrix1.csv");
-
-				std::ofstream xMatrix;
-				xMatrix.open("xMatrix.csv");
-
-				std::ofstream pointFile;
-				pointFile.open("points1.csv");
-
+				//Apply filter methods (single collection, median, mean)
 				for(double xValStart = floor(p0[0]); xValStart < xValEnd; xValStart = xValStart + 1)
 				{
 					for(double yValStart = floor(p0[1]); yValStart > yValEnd; yValStart = yValStart - 1)
@@ -324,18 +307,8 @@ void VolumeTool::buttonCallback(int buttonSlotIndex,Vrui::InputDevice::ButtonCal
 						// beforeDepthArray[xPos][yPos][1] = b1[xPos][yPos][1];
 						// beforeDepthArray[xPos][yPos][2] = b1[xPos][yPos][2];
 
-						pointFile <<  beforeDepthArray[xPos][yPos][0] << "," << beforeDepthArray[xPos][yPos][1] << "," << beforeDepthArray[xPos][yPos][2] << "\n";
-
-						outFile << beforeDepthArray[xPos][yPos][2] << ",";
-						xMatrix << beforeDepthArray[xPos][yPos][0] << ",";
 					}
-					outFile << "\n";
-					xMatrix << "\n";
 				}
-
-				outFile.close();
-				pointFile.close();
-				xMatrix.close();
 
 				//If z value is an unexpected extreme, average over surrounding values
 				for(double xValStart = floor(p0[0]); xValStart < xValEnd; xValStart = xValStart + 1)
@@ -346,7 +319,6 @@ void VolumeTool::buttonCallback(int buttonSlotIndex,Vrui::InputDevice::ButtonCal
 						int yPos = ((yValStart - yValEnd) -1);
 						if ((beforeDepthArray[xPos][yPos][2] > -110) || (beforeDepthArray[xPos][yPos][2] < -200))
 						{
-							//printf("z is extreme = %f\n", beforeDepthArray[xPos][yPos][2] );
 							if((xPos > 0) && (yPos > 0))
 							{
 								double average = (beforeDepthArray[xPos-1][yPos-1][2] + beforeDepthArray[xPos-1][yPos][2] + 
@@ -418,7 +390,9 @@ void VolumeTool::buttonCallback(int buttonSlotIndex,Vrui::InputDevice::ButtonCal
 			}
 			else
 			{
+				//Actions for second button
 
+				//Initialize 3D arrays
 				afterDepthArray = new double **[xSize];
 				for(int i = 0; i < xSize; i++)
 				{
@@ -479,6 +453,7 @@ void VolumeTool::buttonCallback(int buttonSlotIndex,Vrui::InputDevice::ButtonCal
 					}
 				}	
 
+				//Collect depth image points and convert them to cm, storing in them in their respective x,y position in the array
 				for(double xValStart = floor(p0[0]); xValStart < xValEnd; xValStart = xValStart + 1)
 				{
 					for(double yValStart = floor(p0[1]); yValStart > yValEnd; yValStart = yValStart - 1)
@@ -580,12 +555,7 @@ void VolumeTool::buttonCallback(int buttonSlotIndex,Vrui::InputDevice::ButtonCal
 					}
 				}
 
-				std::ofstream outFile2;
-				outFile2.open("matrix2.csv");
-
-				std::ofstream pointFile2;
-				pointFile2.open("points2.csv");
-
+				//Apply filter methods (single collection, median, mean)
 				for(double xValStart = floor(p0[0]); xValStart < xValEnd; xValStart = xValStart + 1)
 				{
 					for(double yValStart = floor(p0[1]); yValStart > yValEnd; yValStart = yValStart - 1)
@@ -636,16 +606,8 @@ void VolumeTool::buttonCallback(int buttonSlotIndex,Vrui::InputDevice::ButtonCal
 						// afterDepthArray[xPos][yPos][0] = a1[xPos][yPos][0];
 						// afterDepthArray[xPos][yPos][1] = a1[xPos][yPos][1];
 						// afterDepthArray[xPos][yPos][2] = a1[xPos][yPos][2];
-
-						pointFile2 <<  afterDepthArray[xPos][yPos][0] << "," << afterDepthArray[xPos][yPos][1] << "," << afterDepthArray[xPos][yPos][2] << "\n";
-
-						outFile2 << afterDepthArray[xPos][yPos][2] << ",";
 					}
-					outFile2 << "\n";
 				}
-
-				outFile2.close();
-				pointFile2.close();
 
 				//If z value is an unexpected extreme, average over surrounding values
 				for(double xValStart = floor(p0[0]); xValStart < xValEnd; xValStart = xValStart + 1)
@@ -656,7 +618,6 @@ void VolumeTool::buttonCallback(int buttonSlotIndex,Vrui::InputDevice::ButtonCal
 						int yPos = ((yValStart - yValEnd) -1);
 						if ((afterDepthArray[xPos][yPos][2] > -110) || (afterDepthArray[xPos][yPos][2] < -200))
 						{
-							//printf("z is extreme = %f\n", afterDepthArray[xPos][yPos][2] );
 							if((xPos > 0) && (yPos > 0))
 							{
 								double average = (afterDepthArray[xPos-1][yPos-1][2] + afterDepthArray[xPos-1][yPos][2] + 
@@ -735,108 +696,12 @@ void VolumeTool::buttonCallback(int buttonSlotIndex,Vrui::InputDevice::ButtonCal
 				std::vector<double> negativeErrorList;
 				std::vector<double> positiveErrorList;
 
-				std::ofstream volumePointFile;
-				volumePointFile.open("volumePointFile.csv");
+				double xDimAverage = 0; 
+				double yDimAverage = 0; 
 
-				//Test 5x5 matrix for sanity
-				// double ***newBefore;
-
-				// newBefore = new double **[5];
-				// for(int i = 0; i < 5; i++)
-				// {
-				// 	newBefore[i] = new double *[5];
-				// 	for(int j = 0; j < 5; j++)
-				// 	{
-				// 		newBefore[i][j] = new double [3];
-				// 	}
-				// }
-
-				// double ***newAfter;
-
-				// newAfter = new double **[5];
-				// for(int i = 0; i < 5; i++)
-				// {
-				// 	newAfter[i] = new double *[5];
-				// 	for(int j = 0; j < 5; j++)
-				// 	{
-				// 		newAfter[i][j] = new double [3];
-				// 	}
-				// }
-
-				// double x = 0;
-				// double y = 0;
-				// double z = 0;
-
-				// for(int i = 0; i < 5; i++)
-				// {
-				// 	y = 0;
-				// 	for(int j = 0; j < 5; j++)
-				// 	{
-				// 		newBefore[i][j][0] = x;
-				// 		newBefore[i][j][1] = y;
-				// 		newBefore[i][j][2] = z;
-
-				// 		newAfter[i][j][0] = x;
-				// 		newAfter[i][j][1] = y;
-				// 		newAfter[i][j][2] = z;
-				// 		y += 0.30;
-				// 	}
-				// 	x += 0.30;
-				// }
-
-				// newAfter[1][1][2] = 10.0;
-				// newAfter[1][2][2]= 10.0;
-				// newAfter[1][3][2] = 10.0;
-
-				// newAfter[2][1][2] = 10.0;
-				// newAfter[2][2][2] = 10.0;
-				// newAfter[2][3][2] = 10.0;
-
-				// newAfter[3][1][2] = 10.0;
-				// newAfter[3][2][2] = 10.0;
-				// newAfter[3][3][2] = 10.0;
-
-				//Initial average for handling extreme x and y dimensions
-				double xDimAverage = 0; //0.27;
-				double yDimAverage = 0; //0.27;
-
-				double averageZ = 0;
-
-				//double calcCount = 0;
-				//double weirdCaseCount = 0;
-
-				// double xError = 0;
-				// int xCount = 0;
-				// double yError = 0;
-				// int yCount = 0;
-				// double zError = 0;
-				// int zCount = 0;
-
-				double singleX = 0;
-				double singleY = 0;
-
-				for(int i = 0; i < xSize-1; i++) //xSize
+				for(int i = 0; i < xSize-1; i++)
 				{
-					double x1Before = beforeDepthArray[i][0][0];
-					double x2Before = beforeDepthArray[i+1][0][0];
-
-					singleX += abs(x1Before - x2Before);
-				}
-				//printf("x length = %f\n", singleX);
-
-				for(int i = 0; i < ySize-1; i++) //xSize
-				{
-					double y1Before = beforeDepthArray[0][i][1];
-					double y3Before = beforeDepthArray[0][i+1][1];
-					singleY += abs(y3Before - y1Before);
-				}
-				//printf("y length = %f\n", singleY);
-				singleY = 0;
-
-
-				for(int i = 0; i < xSize-1; i++) //xSize
-				{
-					for(int j = 0; j < ySize-1; j++) //ySize
+					for(int j = 0; j < ySize-1; j++)
 					{
 						//Set the 4 before and 4 after points
 						double x1Before = beforeDepthArray[i][j][0];
@@ -871,92 +736,6 @@ void VolumeTool::buttonCallback(int buttonSlotIndex,Vrui::InputDevice::ButtonCal
 						double y4After = afterDepthArray[i+1][j+1][1];
 						double z4After = afterDepthArray[i+1][j+1][2];
 
-						//Points to use for the test matrix, need to set the for loops to 5-1 as well
-						// double x1Before = newAfter[i][j][0];
-						// double y1Before = newAfter[i][j][1];
-						// double z1Before = newAfter[i][j][2];
-
-						// double x2Before = newAfter[i+1][j][0];
-						// double y2Before = newAfter[i+1][j][1];
-						// double z2Before = newAfter[i+1][j][2];
-
-						// double x3Before = newAfter[i][j+1][0];
-						// double y3Before = newAfter[i][j+1][1];
-						// double z3Before = newAfter[i][j+1][2];
-
-						// double x4Before = newAfter[i+1][j+1][0];
-						// double y4Before = newAfter[i+1][j+1][1];
-						// double z4Before = newAfter[i+1][j+1][2];
-
-						// double x1After = newBefore[i][j][0];
-						// double y1After = newBefore[i][j][1];
-						// double z1After = newBefore[i][j][2];
-
-						// double x2After = newBefore[i+1][j][0];
-						// double y2After = newBefore[i+1][j][1];
-						// double z2After = newBefore[i+1][j][2];
-
-						// double x3After = newBefore[i][j+1][0];
-						// double y3After = newBefore[i][j+1][1];
-						// double z3After = newBefore[i][j+1][2];
-
-						// double x4After = newBefore[i+1][j+1][0];
-						// double y4After = newBefore[i+1][j+1][1];
-						// double z4After = newBefore[i+1][j+1][2];
-
-
-						// if(abs(x1Before-x1After) > 0){
-						// 	xCount++;
-						// 	xError += abs(x1Before-x1After);
-						// }
-						// if(abs(x2Before-x2After) > 0){
-						// 	xCount++;
-						// 	xError += abs(x2Before-x2After);
-						// }
-						// if(abs(x3Before-x3After) > 0){
-						// 	xCount++;
-						// 	xError += abs(x3Before-x3After);
-						// }
-						// if(abs(x4Before-x4After) > 0){
-						// 	xCount++;
-						// 	xError += abs(x4Before-x4After);
-						// }
-						
-						// if(abs(y1Before-y1After) > 0){
-						// 	yCount++;
-						// 	yError += abs(y1Before-y1After);
-						// }
-						// if(abs(y2Before-y2After) > 0){
-						// 	yCount++;
-						// 	yError += abs(y2Before-y2After);
-						// }
-						// if(abs(y3Before-y3After) > 0){
-						// 	yCount++;
-						// 	yError += abs(y3Before-y3After);
-						// }
-						// if(abs(y4Before-y4After) > 0){
-						// 	yCount++;
-						// 	yError += abs(y4Before-y4After);
-						// }
-
-						// if(abs(z1Before-z1After) > 0){
-						// 	zCount++;
-						// 	zError += abs(z1Before-z1After);
-						// }
-						// if(abs(z2Before-z2After) > 0){
-						// 	zCount++;
-						// 	zError += abs(z2Before-z2After);
-						// }
-						// if(abs(z3Before-z3After) > 0){
-						// 	zCount++;
-						// 	zError += abs(z3Before-z3After);
-						// }
-						// if(abs(z4Before-z4After) > 0){
-						// 	zCount++;
-						// 	zError += abs(z4Before-z4After);
-						// }
-
-
 						//Substract the expected error at the given z value for this dimension
 						double deltaX1 = abs(x1Before - x2Before) - ((abs(x1Before - x2Before) * (-0.0022*((z1Before+z2Before)/2) - 0.2976)));
 						double deltaX2 = abs(x3Before - x4Before) - ((abs(x3Before - x4Before) * (-0.0022*((z3Before+z4Before)/2) - 0.2976)));
@@ -965,20 +744,12 @@ void VolumeTool::buttonCallback(int buttonSlotIndex,Vrui::InputDevice::ButtonCal
 
 						double xDim = (deltaX1+deltaX2+deltaX3+deltaX4)/4;
 
-						// double xDim = (abs(x1Before - x2Before) + abs(x3Before - x4Before) + abs(x1After - x2After) + abs(x3After - x4After))/4;
-						
-						//printf("xDim = %f\n", xDim);
-
 						double deltaY1 = abs(y3Before - y1Before) - (abs(y3Before - y1Before) * (-0.0028*((z3Before+z1Before)/2) - 0.3906));
 						double deltaY2 = abs(y4Before - y2Before) - (abs(y4Before - y2Before) * (-0.0028*((z4Before+z2Before)/2) - 0.3906));
 						double deltaY3 = abs(y3After - y1After) - (abs(y3After - y1After) * (-0.0028*((z3After+z1After)/2) - 0.3906));
 						double deltaY4 = abs(y4After - y2After) - (abs(y4After - y2After) * (-0.0028*((z4After+z2After)/2) - 0.3906));
 
 						double yDim = (deltaY1+deltaY2+deltaY3+deltaY4)/4;
-
-						// double yDim = (abs(y3Before - y1Before) + abs(y4Before - y2Before) + abs(y3After - y1After) + abs(y4After - y2After))/4;
-						
-						//printf("yDim = %f\n", yDim);
 
 						if((xDimAverage == 0) && (yDimAverage == 0))
 						{
@@ -1002,9 +773,6 @@ void VolumeTool::buttonCallback(int buttonSlotIndex,Vrui::InputDevice::ButtonCal
 						//add to the average
 						yDimAverage = (yDimAverage + yDim)/2;
 
-
-						averageZ = (z1Before + z2Before + z3Before + z4Before + z1After + z2After + z3After + z4After)/8;
-
 						double minZ = 0;
 						double maxZ = 0;
 						bool conflictingPoints = false;
@@ -1019,13 +787,12 @@ void VolumeTool::buttonCallback(int buttonSlotIndex,Vrui::InputDevice::ButtonCal
 						double minDepth = 0.9;
 						if( (abs(z1Before - z1After) > minDepth) && (abs(z2Before - z2After) > minDepth) && (abs(z3Before - z3After) > minDepth) && (abs(z4Before - z4After) > minDepth))
 						{		
-							singleY += yDim;
-
 							maxZBefore = std::max({z1Before, z2Before, z3Before, z4Before});
 							minZBefore = std::min({z1Before, z2Before, z3Before, z4Before});
 							maxZAfter = std::max({z1After, z2After, z3After, z4After});
 							minZAfter = std::min({z1After, z2After, z3After, z4After});
 
+							//Determine which directions depth has changed
 							if((z1Before > z1After) && (z2Before > z2After) && (z3Before > z3After) && (z4Before > z4After))
 							{
 								maxZ = maxZBefore;
@@ -1042,11 +809,11 @@ void VolumeTool::buttonCallback(int buttonSlotIndex,Vrui::InputDevice::ButtonCal
 								// or less than the after. Volume of these cases is ignored since it is 
 								// minimal. 10-25 times out of 21000
 								conflictingPoints = true;
-								//weirdCaseCount++;
 							}
 							
 							if(!conflictingPoints)
 							{
+								//Calculate volume and error propagation alongside it
 								double deltaZBefore = maxZBefore - minZBefore;
 								double deltaZAfter = maxZAfter - minZAfter;
 
@@ -1076,7 +843,6 @@ void VolumeTool::buttonCallback(int buttonSlotIndex,Vrui::InputDevice::ButtonCal
 								double errorPart2 = sqrt(pow(errorZs, 2) + pow(errorPart1, 2));
 
 								double volumeCalculation = ((xDim * yDim) * volumePart2);
-								//printf("x = %f, y = %f, z = %f\n", xDim, yDim, volumePart2);
 
 								double volumeError;
 								if (volumePart2 != 0)
@@ -1090,12 +856,6 @@ void VolumeTool::buttonCallback(int buttonSlotIndex,Vrui::InputDevice::ButtonCal
 								
 								errorList.emplace_back(volumeError);
 
-								volumePointFile <<  x1Before << ", " << y1Before << ", " << z1Before << ", " << x2Before << ", " << y2Before << ", " << z2Before << "\n";
-								volumePointFile <<  x3Before << ", " << y3Before << ", " << z3Before << ", " << x4Before << ", " << y4Before << ", " << z4Before << "\n\n";
-
-								volumePointFile <<  x1After << ", " << y1After << ", " << z1After << ", " << x2After << ", " << y2After << ", " << z2After << "\n";
-								volumePointFile <<  x3After << ", " << y3After << ", " << z3After << ", " << x4After << ", " << y4After << ", " << z4After << "\n\n";
-
 								if(volumeCalculation < 0){
 									volumeNeg += volumeCalculation;
 									negativeErrorList.emplace_back(volumeError);
@@ -1106,12 +866,7 @@ void VolumeTool::buttonCallback(int buttonSlotIndex,Vrui::InputDevice::ButtonCal
 							}
 						}
 					}
-					// printf("y length calced = %f\n", singleY);
-					// singleY = 0;
 				}
-
-
-				volumePointFile.close();
 
 				int errorListSize = errorList.size();
 				for(int i = 0; i < errorListSize; i++)
@@ -1134,12 +889,9 @@ void VolumeTool::buttonCallback(int buttonSlotIndex,Vrui::InputDevice::ButtonCal
 				}
 				positiveError = sqrt(positiveError);
 
-				//double percentWeird = weirdCaseCount/calcCount;
 
-				printf("Average x = %f, y = %f, z = %f\n", xDimAverage, yDimAverage, averageZ);
-				printf("volumeRemoved = %f +/- %f, volumeAdded = %f +/- %f, volumeNet = %f +/- %f\n", volumePos, positiveError, abs(volumeNeg), negativeError, (volumeNeg + volumePos), totalError);
-				//printf("Percentage of weird case = %f/%f = %f\n", weirdCaseCount, calcCount, percentWeird);
-				//printf("X Error = %f, Y Error = %f, Z Error = %f\n", xError/xCount,  yError/yCount, zError/zCount);
+				printf("volumeRemoved = %f +/- %f, volumeAdded = %f +/- %f, volumeNet = %f +/- %f\n", 
+					volumePos, positiveError, abs(volumeNeg), negativeError, (volumeNeg + volumePos), totalError);
 			}
 		}
 	}
